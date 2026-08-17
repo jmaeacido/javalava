@@ -99,7 +99,7 @@ Environment:
   SMOKE_TEST_EMAIL Optional fixed test email (default: smoke+<timestamp>@example.com)
 
 Notes:
-  - Creates real Supabase rows tagged source=api-smoke-test.
+  - Creates real database rows tagged source=api-smoke-test.
   - May send emails when SMTP is configured (502 still means the row saved).
   - Run against local Node API: npm run dev:api (from project root)
 `);
@@ -143,7 +143,7 @@ async function main() {
         console.log(`  error: ${result.data.error}`);
       }
       if (result.status === 502 && result.data && result.data.emailError) {
-        console.log(`  note: saved to Supabase; email failed (${result.data.emailError})`);
+        console.log(`  note: saved to database; email failed (${result.data.emailError})`);
       }
       if (!ok) {
         failed += 1;

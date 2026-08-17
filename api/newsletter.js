@@ -1,5 +1,6 @@
-const TABLE = process.env.SUPABASE_NEWSLETTER_TABLE || 'newsletter_subscribers';
 const DEFAULT_CONTACT_TO = 'contact@javalava.rocks';
+const { isConfigured } = require('./lib/db');
+const formsStore = require('./lib/forms-store');
 const { brandEmailHtml, sendMail } = require('./lib/mailer');
 
 function json(res, status, body) {
@@ -88,12 +89,7 @@ async function sendNewsletterNotification(subscriber) {
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return json(res, 204, {});
   if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' });
-
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRoleKey) {
-    return json(res, 500, { error: 'Newsletter backend is not configured' });
-  }
+  if (!isConfigured()) return json(res, 500, { error: 'Newsletter backend is not configured' });
 
   let body = {};
   try {
@@ -109,43 +105,17 @@ module.exports = async function handler(req, res) {
     email,
     source: clean(body.source, 80) || 'homepage-newsletter',
     user_agent: clean(req.headers['user-agent'], 500),
-    updated_at: new Date().toISOString()
   };
 
   try {
-    const base = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/${TABLE}`;
-    const response = await fetch(`${base}?on_conflict=email`, {
-      method: 'POST',
-      headers: {
-        apikey: serviceRoleKey,
-        authorization: `Bearer ${serviceRoleKey}`,
-        'content-type': 'application/json',
-        prefer: 'resolution=ignore-duplicates,return=representation'
-      },
-      body: JSON.stringify(payload)
-    });
+    const { subscriber, duplicate } = await formsStore.upsertNewsletter(payload);
 
-    if (!response.ok) {
-      const detail = await response.text();
-      return json(res, 502, { error: 'Could not save newsletter signup', detail });
-    }
-
-    const rows = await response.json();
-    const subscriber = rows[0] || payload;
-    if (!rows[0]) {
-      const existingResponse = await fetch(`${base}?select=*&email=${encodeURIComponent(`eq.${email}`)}&limit=1`, {
-        headers: {
-          apikey: serviceRoleKey,
-          authorization: `Bearer ${serviceRoleKey}`,
-          'content-type': 'application/json'
-        }
-      });
-      const existingRows = existingResponse.ok ? await existingResponse.json() : [];
+    if (duplicate) {
       return json(res, 200, {
         ok: true,
         duplicate: true,
         emailsSkipped: true,
-        subscriber: existingRows[0] || subscriber
+        subscriber
       });
     }
 
@@ -163,6 +133,7 @@ module.exports = async function handler(req, res) {
       });
     }
   } catch (error) {
+    console.error('[newsletter]', error);
     return json(res, 500, { error: 'Could not save newsletter signup' });
   }
 };

@@ -9,7 +9,8 @@
     "dev:api": "node --watch server/dev-api.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "smoke:api": "node scripts/smoke-api.js",
-    "seo:apply": "node scripts/apply-seo.js"
+    "seo:apply": "node scripts/apply-seo.js",
+    "db:setup": "node scripts/db-setup.js"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +19,7 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "mysql2": "^3.12.0",
     "nodemailer": "^9.0.1"
   }
 }

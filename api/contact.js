@@ -1,6 +1,7 @@
-const TABLE = process.env.SUPABASE_CONTACT_SUBMISSIONS_TABLE || 'contact_submissions';
 const DEFAULT_CONTACT_TO = 'contact@javalava.rocks';
 const DEFAULT_WHOLESALE_TO = 'sharon@johnnyrocks.co';
+const { isConfigured } = require('./lib/db');
+const formsStore = require('./lib/forms-store');
 const { brandEmailHtml, sendMail } = require('./lib/mailer');
 
 function json(res, status, body) {
@@ -48,7 +49,7 @@ async function sendContactNotification(payload, submission) {
       title: payload.subject,
       intro: `${payload.first_name} ${payload.last_name} sent a message through the Java Lava contact form.`,
       body: [
-        'The submission has been saved in Supabase and is ready for follow-up.'
+        'The submission has been saved and is ready for follow-up.'
       ],
       details: [
         { label: 'Name', value: `${payload.first_name} ${payload.last_name}` },
@@ -105,12 +106,7 @@ async function sendContactAutoReply(payload, submission) {
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return json(res, 204, {});
   if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' });
-
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRoleKey) {
-    return json(res, 500, { error: 'Contact backend is not configured' });
-  }
+  if (!isConfigured()) return json(res, 500, { error: 'Contact backend is not configured' });
 
   let body = {};
   try {
@@ -142,29 +138,12 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/${TABLE}`, {
-      method: 'POST',
-      headers: {
-        apikey: serviceRoleKey,
-        authorization: `Bearer ${serviceRoleKey}`,
-        'content-type': 'application/json',
-        prefer: 'return=representation'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const detail = await response.text();
-      return json(res, 502, { error: 'Could not save contact submission', detail });
-    }
-
-    const rows = await response.json();
-    const submission = rows[0] || payload;
+    const submission = await formsStore.insertContact(payload);
 
     try {
-      const email = await sendContactNotification(payload, submission);
+      const emailResult = await sendContactNotification(payload, submission);
       const autoReply = await sendContactAutoReply(payload, submission);
-      return json(res, 200, { ok: true, submission, email, autoReply });
+      return json(res, 200, { ok: true, submission, email: emailResult, autoReply });
     } catch (emailError) {
       return json(res, 502, {
         error: 'Contact submission was saved, but one or more emails could not be sent',
@@ -173,6 +152,7 @@ module.exports = async function handler(req, res) {
       });
     }
   } catch (error) {
+    console.error('[contact]', error);
     return json(res, 500, { error: 'Could not save contact submission' });
   }
 };

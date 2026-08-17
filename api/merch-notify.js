@@ -1,5 +1,6 @@
-const TABLE = process.env.SUPABASE_MERCH_SIGNUPS_TABLE || 'merch_notifications';
 const DEFAULT_CONTACT_TO = 'contact@javalava.rocks';
+const { isConfigured } = require('./lib/db');
+const formsStore = require('./lib/forms-store');
 const { merchImageUrl, merchProductUrl } = require('./lib/merch-images');
 const { brandEmailHtml, sendMail } = require('./lib/mailer');
 
@@ -102,7 +103,7 @@ async function sendMerchNotification(signup) {
       title: 'New merch waitlist request',
       intro: `${signup.email} joined the waitlist for ${signup.product_title || 'Java Lava merch'}.`,
       body: [
-        'The request has been saved in Supabase and is ready for merch follow-up.'
+        'The request has been saved and is ready for merch follow-up.'
       ],
       details: [
         { label: 'Email', value: signup.email },
@@ -128,12 +129,7 @@ async function sendMerchNotification(signup) {
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return json(res, 204, {});
   if (req.method !== 'POST') return json(res, 405, { error: 'Method not allowed' });
-
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRoleKey) {
-    return json(res, 500, { error: 'Merch notification backend is not configured' });
-  }
+  if (!isConfigured()) return json(res, 500, { error: 'Merch notification backend is not configured' });
 
   let body = {};
   try {
@@ -164,24 +160,7 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    const response = await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/${TABLE}`, {
-      method: 'POST',
-      headers: {
-        apikey: serviceRoleKey,
-        authorization: `Bearer ${serviceRoleKey}`,
-        'content-type': 'application/json',
-        prefer: 'return=representation'
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-      const detail = await response.text();
-      return json(res, 502, { error: 'Could not save merch signup', detail });
-    }
-
-    const rows = await response.json();
-    const signup = rows[0] || payload;
+    const signup = await formsStore.insertMerchSignup(payload);
 
     try {
       const [autoReply, notification] = await Promise.all([
@@ -197,6 +176,7 @@ module.exports = async function handler(req, res) {
       });
     }
   } catch (error) {
+    console.error('[merch-notify]', error);
     return json(res, 500, { error: 'Could not save merch signup' });
   }
 };

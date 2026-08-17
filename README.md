@@ -1,6 +1,6 @@
 # Java Lava
 
-Marketing website for **Java Lava**, a premium coffee liqueur brand. The site combines static HTML pages with a **Node.js / Express** API backend, Supabase for blog and form data, and branded admin tools for day-to-day operations.
+Marketing website for **Java Lava**, a premium coffee liqueur brand. The site combines static HTML pages with a **Node.js / Express** API backend, **MySQL** for blog and form data, and branded admin tools for day-to-day operations.
 
 **Production:** [www.javalava.rocks](https://www.javalava.rocks)
 
@@ -39,7 +39,7 @@ Browser (static HTML/CSS/JS)
         │                                    │
         ├── Static assets                    ├── /api/*  route handlers
         │   (HTML, CSS, JS, images)          │       │
-        │                                    │       ├── Supabase (blog, forms)
+        │                                    │       ├── MySQL (blog, forms)
         └── /api/* proxied when split        │       ├── SMTP (Nodemailer)
                                              │       ├── Instagram Graph API
                                              │       └── Google Maps config
@@ -60,14 +60,14 @@ Browser (static HTML/CSS/JS)
 | Merch | `/merch` | Apparel catalog with waitlist signups |
 | Store Locator | `/locator` | Google Maps stockist finder |
 | Contact | `/contact` | Contact and wholesale enquiry form |
-| Blog | `/blog` | Published posts from Supabase |
+| Blog | `/blog` | Published posts from MySQL |
 | Blog post | `/blog-post` | Single post view (slug via query string) |
 | Policies | `/privacy-policy`, `/terms-conditions`, `/shipping-policy`, `/refund-policy`, `/accessibility-statement` | Legal and accessibility pages |
 | 404 | `/404` | Branded not-found page |
 
 ### Back end
 
-- **Contact form** — saves to Supabase, emails the team (wholesale enquiries route to a separate inbox)
+- **Contact form** — saves to MySQL, emails the team (wholesale enquiries route to a separate inbox)
 - **Newsletter** — upserts subscriber, sends welcome email and internal notification
 - **Merch waitlist** — records product/size/quantity interest, sends auto-reply and team alert
 - **Blog CMS** — full CRUD for posts, categories, and tags; RSS and blog sitemap generation
@@ -92,7 +92,7 @@ Browser (static HTML/CSS/JS)
 | Client JS | Vanilla JavaScript (no bundler) |
 | Animation | GSAP, ScrollTrigger, Lenis (vendored in `vendor/`) |
 | Backend | Node.js 18+, Express |
-| Database | [Supabase](https://supabase.com) (PostgreSQL REST API) |
+| Database | MySQL / MariaDB (via `mysql2`) |
 | Email | [Nodemailer](https://nodemailer.com) over SMTP |
 | Hosting | Node server (production); Laragon/Apache (local static + API proxy) |
 | Blog editor | TipTap (CDN, admin only) |
@@ -134,8 +134,8 @@ javalava/
 │   └── smoke-api.js          # POST smoke tests for form APIs
 ├── vendor/                   # GSAP, ScrollTrigger, Lenis (minified)
 ├── *.html                    # Public and admin pages
-├── supabase-blog.sql         # Blog schema (run in Supabase SQL editor)
-├── supabase-merch-notifications.sql  # Forms/signups schema
+├── database/
+│   └── schema.sql            # MySQL schema (blog, forms, signups)
 ├── .htaccess                 # Apache extensionless URLs + API proxy (Laragon)
 ├── .env.example              # Environment variable template
 ├── config.local.js.example   # Local API base override template
@@ -147,7 +147,7 @@ javalava/
 ## Prerequisites
 
 - **Node.js** 18+ (backend and scripts)
-- **Supabase project** — for blog and form storage
+- **MySQL or MariaDB** — Laragon includes this by default; used for blog and form storage
 - **SMTP credentials** — e.g. Gmail app password for transactional email
 - **Google Maps API key** — browser key with Maps JavaScript API enabled (for locator)
 - **Laragon** (optional) — serve static HTML locally at e.g. `http://localhost/javalava/` with Apache proxying `/api/*` to Node
@@ -172,14 +172,20 @@ cp .env.example .env
 
 Set at minimum:
 
-- `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
+- MySQL connection (`DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`) or `DATABASE_URL`
 - `JAVA_LAVA_ADMIN_TOKEN` (for admin API access)
 - `BLOG_ADMIN_KEY` (for blog admin CRUD)
 - SMTP variables if you want email delivery locally
 
-The server loads `.env` automatically via `dotenv`.
+### 3. Initialize the database
 
-### 3. Choose a dev mode
+```bash
+npm run db:setup
+```
+
+Creates the `javalava` database and all tables from `database/schema.sql`.
+
+### 4. Choose a dev mode
 
 **Option A — All-in-one (simplest):** Node serves static files and API on one port.
 
@@ -203,7 +209,7 @@ Terminal 2: open the site via Laragon at `http://localhost/javalava/`.
 
 For Maps and any cross-origin fallback, copy `config.local.js.example` to `config.local.js` and set `apiBase: 'http://localhost:3000'`.
 
-### 4. Verify APIs
+### 5. Verify APIs
 
 ```bash
 npm run smoke:api
@@ -211,7 +217,7 @@ npm run smoke:api
 npm run smoke:api -- --base https://www.javalava.rocks
 ```
 
-Smoke tests POST to contact, newsletter, and merch-notify. They create real Supabase rows tagged `source=api-smoke-test` and may send email when SMTP is configured. A `502` response with a saved row means Supabase succeeded but email failed.
+Smoke tests POST to contact, newsletter, and merch-notify. They create real database rows tagged `source=api-smoke-test` and may send email when SMTP is configured. A `502` response with a saved row means the database write succeeded but email failed.
 
 ---
 
@@ -221,13 +227,14 @@ Smoke tests POST to contact, newsletter, and merch-notify. They create real Supa
 |----------|----------|-------------|
 | `PORT` | No | Server port (default: `3000`) |
 | `SERVE_STATIC` | No | Serve HTML/assets from Node (default: `true`; set `false` for API-only behind Apache) |
-| `SUPABASE_URL` | Yes | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Service role key (server-side only; never expose in client) |
+| `DB_HOST` | Yes | MySQL host (default: `127.0.0.1`) |
+| `DB_PORT` | No | MySQL port (default: `3306`) |
+| `DB_USER` | Yes | MySQL username (Laragon default: `root`) |
+| `DB_PASSWORD` | No | MySQL password (Laragon default: empty) |
+| `DB_NAME` | Yes | Database name (default: `javalava`) |
+| `DATABASE_URL` | Alt. | Full connection URL, e.g. `mysql://root@127.0.0.1:3306/javalava` |
 | `JAVA_LAVA_ADMIN_TOKEN` | Yes (admin) | Secret for `x-java-lava-admin-token` header on admin routes |
 | `BLOG_ADMIN_KEY` | Yes (blog admin) | Secret for `x-admin-key` header on blog admin routes |
-| `SUPABASE_MERCH_SIGNUPS_TABLE` | No | Default: `merch_notifications` |
-| `SUPABASE_CONTACT_SUBMISSIONS_TABLE` | No | Default: `contact_submissions` |
-| `SUPABASE_NEWSLETTER_TABLE` | No | Default: `newsletter_subscribers` |
 | `SITE_URL` | Recommended | Canonical public URL (emails, RSS, sitemap, asset fallbacks) |
 | `SMTP_HOST` | For email | e.g. `smtp.gmail.com` |
 | `SMTP_PORT` | For email | e.g. `587` |
@@ -255,25 +262,25 @@ See `.env.example` for a complete template with placeholder values.
 
 ## Database setup
 
-Run the SQL files in the Supabase SQL editor. Both are idempotent (safe to re-run).
+Run once (or after schema changes):
 
-### Forms and signups
+```bash
+npm run db:setup
+```
 
-Run `supabase-merch-notifications.sql`. Creates:
+This executes `database/schema.sql`, which creates the `javalava` database and tables:
+
+**Forms & signups**
 
 - `merch_notifications` — merch waitlist entries
 - `contact_submissions` — contact form rows
 - `newsletter_subscribers` — mailing list (unique email)
 
-### Blog CMS
-
-Run `supabase-blog.sql`. Creates:
+**Blog CMS**
 
 - `blog_categories`, `blog_tags`, `blog_posts`, `blog_post_tags`
-- Triggers for `updated_at`
-- Seed categories/tags (optional starter data)
 
-The blog API uses the Supabase REST API with the service role key. Row Level Security policies are defined in the SQL file for public read of published posts only.
+The API uses the MySQL connection pool in `api/lib/db.js`. Published blog posts are filtered in application code (`status = 'published'`).
 
 ---
 
@@ -325,7 +332,7 @@ Wholesale or stockist subjects are routed to `WHOLESALE_EMAIL_TO`.
 ### Response behavior
 
 - **200** — Success (row saved; email sent when configured)
-- **502** — Row saved to Supabase but email delivery failed (`emailError` in body)
+- **502** — Row saved to MySQL but email delivery failed (`emailError` in body)
 - **401** — Missing or invalid admin token/key
 - **405** — Wrong HTTP method
 
@@ -360,7 +367,7 @@ The script (`scripts/apply-seo.js`):
 2. Writes `sitemap.xml` from public, indexable routes
 3. Updates `robots.txt` if configured in the script
 
-Blog posts are indexed separately via `/sitemap-blog.xml` (dynamic, from Supabase).
+Blog posts are indexed separately via `/sitemap-blog.xml` (dynamic, from MySQL).
 
 ---
 
@@ -407,6 +414,7 @@ Legacy `/concept-a/*` URLs redirect to the site root via `.htaccess`.
 | `npm run dev:api` | API-only server (for Apache split setup) |
 | `npm run smoke:api` | POST smoke tests against contact, newsletter, merch-notify |
 | `npm run seo:apply` | Sync SEO tags from `seoData.js` into HTML + sitemap |
+| `npm run db:setup` | Create database and tables from `database/schema.sql` |
 
 ### Smoke test options
 
@@ -444,7 +452,7 @@ Three modes, chosen at runtime:
 
 ### Merch catalog
 
-Product definitions live in `js/merch-catalog.js` (client-side). Waitlist submissions go to `/api/merch-notify` and persist in Supabase; the admin UI reads them via `/api/merch-signups` or `/api/mailing-records`.
+Product definitions live in `js/merch-catalog.js` (client-side). Waitlist submissions go to `/api/merch-notify` and persist in MySQL; the admin UI reads them via `/api/merch-signups` or `/api/mailing-records`.
 
 ### Age gate
 

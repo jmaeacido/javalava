@@ -1,8 +1,5 @@
-const TABLES = {
-  merch: process.env.SUPABASE_MERCH_SIGNUPS_TABLE || 'merch_notifications',
-  newsletter: process.env.SUPABASE_NEWSLETTER_TABLE || 'newsletter_subscribers',
-  contact: process.env.SUPABASE_CONTACT_SUBMISSIONS_TABLE || 'contact_submissions'
-};
+const { isConfigured } = require('./lib/db');
+const formsStore = require('./lib/forms-store');
 
 function json(res, status, body) {
   res.statusCode = status;
@@ -81,61 +78,38 @@ function normalizeContact(row) {
   };
 }
 
-async function fetchTable(base, table, headers) {
-  const response = await fetch(`${base}/${table}?select=*`, { headers });
-  if (!response.ok) {
-    return { ok: false, rows: [], detail: await response.text() };
-  }
-  return { ok: true, rows: await response.json(), detail: '' };
-}
-
 module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return json(res, 204, {});
   if (req.method !== 'GET') return json(res, 405, { error: 'Method not allowed' });
   if (!authorized(req)) return json(res, 401, { error: 'Admin token required' });
-
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceRoleKey) {
-    return json(res, 500, { error: 'Mailing records backend is not configured' });
-  }
-
-  const base = `${supabaseUrl.replace(/\/$/, '')}/rest/v1`;
-  const headers = {
-    apikey: serviceRoleKey,
-    authorization: `Bearer ${serviceRoleKey}`,
-    'content-type': 'application/json'
-  };
+  if (!isConfigured()) return json(res, 500, { error: 'Mailing records backend is not configured' });
 
   try {
-    const [merch, newsletter, contact] = await Promise.all([
-      fetchTable(base, TABLES.merch, headers),
-      fetchTable(base, TABLES.newsletter, headers),
-      fetchTable(base, TABLES.contact, headers)
+    const [merchRows, newsletterRows, contactRows] = await Promise.all([
+      formsStore.listMerchSignups(),
+      formsStore.listNewsletterSubscribers(),
+      formsStore.listContactSubmissions()
     ]);
-    const errors = [];
-    if (!merch.ok) errors.push({ table: TABLES.merch, detail: merch.detail });
-    if (!newsletter.ok) errors.push({ table: TABLES.newsletter, detail: newsletter.detail });
-    if (!contact.ok) errors.push({ table: TABLES.contact, detail: contact.detail });
 
     const records = []
-      .concat(merch.rows.map(normalizeMerch))
-      .concat(newsletter.rows.map(normalizeNewsletter))
-      .concat(contact.rows.map(normalizeContact))
+      .concat(merchRows.map(normalizeMerch))
+      .concat(newsletterRows.map(normalizeNewsletter))
+      .concat(contactRows.map(normalizeContact))
       .sort((a, b) => String(b.submittedAt || '').localeCompare(String(a.submittedAt || '')));
 
-    return json(res, errors.length ? 207 : 200, {
-      ok: errors.length === 0,
+    return json(res, 200, {
+      ok: true,
       records,
       counts: {
-        merch: merch.rows.length,
-        newsletter: newsletter.rows.length,
-        contact: contact.rows.length,
+        merch: merchRows.length,
+        newsletter: newsletterRows.length,
+        contact: contactRows.length,
         total: records.length
       },
-      errors
+      errors: []
     });
   } catch (error) {
+    console.error('[mailing-records]', error);
     return json(res, 500, { error: 'Could not load mailing records' });
   }
 };
