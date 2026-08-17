@@ -167,22 +167,151 @@ if(window.gsap){
 (function(){
   if(/^\/(admin|email-admin|merch-admin|blog-admin)(\.html)?$/i.test(location.pathname)) return;
 
-  window.apbrand = window.apbrand || { id: 4041823 };
+  var ACCELPAY_CART_ORIGIN = 'https://cart.accelpay.io';
+  var ACCELPAY_BRAND_ID = 4041823;
+  var ACCELPAY_EMBED_PATH = '/' + ACCELPAY_BRAND_ID + '/embed/cart';
+
+  window.apbrand = window.apbrand || { id: ACCELPAY_BRAND_ID };
   if(document.querySelector('script[data-jl-accelpay]')) return;
+
+  function accelPayEmbedSrc(url){
+    if(!url || typeof url !== 'string') return url;
+    if(url.indexOf('cart.accelpay.io') !== -1) return url;
+    if(url.indexOf('/embed/cart') === -1) return url;
+    var match = url.match(/\/(\d+)\/embed\/cart(\?.*)?$/);
+    if(!match) return url;
+    return ACCELPAY_CART_ORIGIN + '/' + match[1] + '/embed/cart' + (match[2] || location.search || '');
+  }
+
+  function accelPayCartUrl(){
+    return ACCELPAY_CART_ORIGIN + ACCELPAY_EMBED_PATH + (location.search || '');
+  }
+
+  function accelPayCartBroken(url){
+    if(!url) return true;
+    if(/^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(url)) return true;
+    if(url.indexOf('cart.accelpay.io') !== -1) return false;
+    if(location.hostname && url.indexOf(location.hostname) !== -1) return true;
+    return false;
+  }
+
+  /* brand.js points cart + postMessage at http://localhost on local dev. Patch before it loads. */
+  (function installAccelPayPatches(){
+    if(window.__jlAccelPayPatches) return;
+    window.__jlAccelPayPatches = true;
+
+    var srcDesc = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'src');
+    if(srcDesc && srcDesc.set){
+      Object.defineProperty(HTMLIFrameElement.prototype, 'src', {
+        configurable: true,
+        enumerable: srcDesc.enumerable,
+        get: srcDesc.get,
+        set: function(value){
+          return srcDesc.set.call(this, accelPayEmbedSrc(value));
+        }
+      });
+    }
+
+    var origSetAttribute = Element.prototype.setAttribute;
+    Element.prototype.setAttribute = function(name, value){
+      if(this.tagName === 'IFRAME' && String(name).toLowerCase() === 'src'){
+        value = accelPayEmbedSrc(String(value));
+      }
+      return origSetAttribute.call(this, name, value);
+    };
+
+    var origPostMessage = Window.prototype.postMessage;
+    Window.prototype.postMessage = function(message, targetOrigin, transfer){
+      var iframe = document.getElementById('accelpay-iframe');
+      if(iframe && iframe.contentWindow === this){
+        var wanted = accelPayCartUrl();
+        if(iframe.src !== wanted) iframe.src = wanted;
+        try{
+          void this.location.href;
+          return;
+        }catch(err){
+          targetOrigin = ACCELPAY_CART_ORIGIN;
+        }
+      }
+      return origPostMessage.call(this, message, targetOrigin, transfer);
+    };
+  })();
 
   var readyWaiters = [];
   var accelpayReady = false;
 
+  function lockAccelPayConfigUrl(ap){
+    if(!ap || !ap.config || ap.config.__jlUrlLocked) return;
+    var stored = ACCELPAY_CART_ORIGIN;
+    Object.defineProperty(ap.config, 'url', {
+      configurable: true,
+      enumerable: true,
+      get: function(){ return stored; },
+      set: function(val){
+        stored = accelPayCartBroken(val) ? ACCELPAY_CART_ORIGIN : val;
+      }
+    });
+    ap.config.__jlUrlLocked = true;
+  }
+
+  function forceAccelPayIframe(ap){
+    if(!ap || !ap.dom) return false;
+    lockAccelPayConfigUrl(ap);
+    var iframe = ap.dom.getIframe && ap.dom.getIframe();
+    if(!iframe) return false;
+    var wanted = accelPayCartUrl();
+    if(iframe.src !== wanted) iframe.src = wanted;
+    return iframe.src === wanted;
+  }
+
+  function accelPayIframeLive(ap){
+    if(!forceAccelPayIframe(ap)) return false;
+    var iframe = ap.dom.getIframe && ap.dom.getIframe();
+    if(!iframe || iframe.src !== accelPayCartUrl()) return false;
+    try{
+      void iframe.contentWindow.location.href;
+      return false;
+    }catch(err){
+      return true;
+    }
+  }
+
+  function watchAccelPayIntegration(ap){
+    if(!ap || ap.__jlWatching) return;
+    ap.__jlWatching = true;
+    (function tick(){
+      forceAccelPayIframe(ap);
+      if(!accelpayReady) window.setTimeout(tick, 25);
+    })();
+  }
+
+  (function hookApbrandAccelpay(){
+    var root = window.apbrand;
+    var current = root.accelpay;
+    Object.defineProperty(root, 'accelpay', {
+      configurable: true,
+      enumerable: true,
+      get: function(){ return current; },
+      set: function(v){
+        current = v;
+        watchAccelPayIntegration(v);
+      }
+    });
+    if(current) watchAccelPayIntegration(current);
+  })();
+
   function markAccelPayReady(){
     if(accelpayReady) return;
     if(!window.apbrand || !apbrand.accelpay || !apbrand.accelpay.dom) return;
+    if(!accelPayIframeLive(apbrand.accelpay)) return;
     accelpayReady = true;
     readyWaiters.splice(0).forEach(function(cb){ try{ cb(apbrand.accelpay); }catch(err){} });
   }
 
   function pollAccelPayReady(){
+    if(window.apbrand && apbrand.accelpay) forceAccelPayIframe(apbrand.accelpay);
     markAccelPayReady();
-    if(!accelpayReady) window.setTimeout(pollAccelPayReady, 200);
+    if(!accelpayReady) window.setTimeout(pollAccelPayReady, 50);
   }
 
   function whenAccelPayReady(timeoutMs){
@@ -201,7 +330,7 @@ if(window.gsap){
   }
 
   window.JavaLavaAccelPay = {
-    brandId: 4041823,
+    brandId: ACCELPAY_BRAND_ID,
     whenReady: whenAccelPayReady,
     addToCart: function(opts){
       opts = opts || {};
@@ -210,7 +339,8 @@ if(window.gsap){
       var qty = Math.max(1, opts.qty || 1);
       if(!listingId || !variantId) return Promise.reject(new Error('AccelPay product mapping missing.'));
 
-      return whenAccelPayReady().then(function(){
+      return whenAccelPayReady().then(function(ap){
+        forceAccelPayIframe(ap);
         var slot = document.querySelector('[data-bclistingid="' + listingId + '"][data-bcvariantid="' + variantId + '"]');
         var btn = slot && slot.querySelector('button');
         if(!btn) throw new Error('AccelPay add-to-cart control not found');
@@ -219,6 +349,7 @@ if(window.gsap){
     },
     openCart: function(){
       return whenAccelPayReady().then(function(ap){
+        forceAccelPayIframe(ap);
         ap.dom.openCart();
       });
     }
@@ -232,7 +363,7 @@ if(window.gsap){
 
   var script = document.createElement('script');
   script.async = true;
-  script.src = 'https://cart.accelpay.io/scripts/brand.js';
+  script.src = ACCELPAY_CART_ORIGIN + '/scripts/brand.js';
   script.setAttribute('data-jl-accelpay', '1');
   script.addEventListener('load', pollAccelPayReady);
   document.body.appendChild(script);
