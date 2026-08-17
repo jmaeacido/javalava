@@ -1,0 +1,20 @@
+{
+  "name": "java-lava",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "smoke:api": "node scripts/smoke-api.js",
+    "seo:apply": "node scripts/apply-seo.js",
+    "dev:api": "vercel dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "nodemailer": "^9.0.1",
+    "playwright": "1.48"
+  }
+}

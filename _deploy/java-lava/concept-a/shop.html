@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shop — Java Lava Coffee Liqueur</title>
+<meta name="description" content="Shop Java Lava Coffee Liqueur — 750ml, 20% ABV. Ethically sourced Arabica, Caribbean rum and blue agave. $35.99." />
+<meta name="keywords" content="Java Lava coffee liqueur" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://www.javalava.rocks/shop" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Java Lava" />
+<meta property="og:title" content="Shop — Java Lava Coffee Liqueur" />
+<meta property="og:description" content="Shop Java Lava Coffee Liqueur — 750ml, 20% ABV. Ethically sourced Arabica, Caribbean rum and blue agave. $35.99." />
+<meta property="og:image" content="https://java-lava-eta.vercel.app/assets/og.jpg" />
+<meta property="og:url" content="https://www.javalava.rocks/shop" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Shop — Java Lava Coffee Liqueur" />
+<meta name="twitter:description" content="Shop Java Lava Coffee Liqueur — 750ml, 20% ABV. Ethically sourced Arabica, Caribbean rum and blue agave. $35.99." />
+<meta name="twitter:image" content="https://java-lava-eta.vercel.app/assets/og.jpg" />
+<link rel="icon" href="../assets/product-6cafc4.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Josefin+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/site.css" />
+<style>
+.pdp{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;padding-top:150px}
+.pdp .media{position:relative;aspect-ratio:1/1;border-radius:20px;overflow:hidden;border:1px solid rgba(212,160,23,.2);background:radial-gradient(70% 60% at 50% 30%,rgba(184,134,11,.18),transparent 60%)}
+.pdp .media img{width:100%;height:100%;object-fit:cover;display:block}
+.pdp .thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pdp .thumbs img{width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid rgba(212,160,23,.25);cursor:pointer;opacity:.7;transition:.3s}
+.pdp .thumbs img:hover,.pdp .thumbs img.active{opacity:1;border-color:var(--gold)}
+.price-row{display:flex;align-items:baseline;gap:14px;margin:18px 0}
+.price-row .price{font-family:var(--font-display);font-size:2.8rem;color:var(--gold-lt)}
+.price-row .meta{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,235,221,.6)}
+.notes{display:flex;flex-direction:column;gap:14px;margin:26px 0}
+.note{display:grid;grid-template-columns:90px 1fr;align-items:center;gap:14px}
+.note .lab{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.note .meter{height:6px;border-radius:6px;background:rgba(212,160,23,.18);overflow:hidden}
+.note .meter span{display:block;height:100%;background:var(--gold-grad)}
+.buy{display:flex;gap:14px;align-items:center;margin:26px 0 10px;flex-wrap:wrap}
+.qty{display:flex;align-items:center;border:1px solid rgba(212,160,23,.3);border-radius:40px;overflow:hidden}
+.qty button{background:none;border:none;color:var(--cream);width:44px;height:48px;font-size:1.2rem;cursor:pointer}
+.qty button:hover{color:var(--gold-lt)}
+.qty span{width:40px;text-align:center;font-weight:600}
+.cart-panel{margin-top:20px;border:1px solid rgba(212,160,23,.24);border-radius:16px;background:rgba(242,232,214,.035);overflow:hidden;display:none}
+.cart-panel.active{display:block}
+.cart-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;border-bottom:1px solid rgba(212,160,23,.14)}
+.cart-row:last-child{border-bottom:none}
+.cart-title{font-family:var(--font-display);font-size:1.35rem;font-weight:600}
+.cart-meta{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(244,235,221,.58);margin-top:4px}
+.cart-total{text-align:right;color:var(--gold-lt);font-family:var(--font-display);font-size:1.7rem;white-space:nowrap}
+.cart-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.cart-actions .btn{padding:12px 18px}
+.cart-note{font-size:.78rem;color:rgba(244,235,221,.58);line-height:1.5}
+.cart-slot{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.cart-slot:empty{display:none}
+.btn.is-added{background:var(--gold-grad);color:#2A2010;box-shadow:0 12px 32px rgba(212,160,23,.32)}
+.acc{border-top:1px solid rgba(212,160,23,.16);margin-top:14px}
+.acc details{border-bottom:1px solid rgba(212,160,23,.16)}
+.acc summary{list-style:none;cursor:pointer;padding:18px 0;display:flex;justify-content:space-between;align-items:center;font-weight:600;letter-spacing:.04em}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary .plus{color:var(--gold);font-size:1.3rem;transition:transform .3s}
+.acc details[open] summary .plus{transform:rotate(45deg)}
+.acc p{padding:0 0 18px;font-weight:300;color:rgba(244,235,221,.72);line-height:1.7}
+.trust{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px;font-size:.78rem;color:rgba(244,235,221,.6)}
+.trust div{display:flex;align-items:center;gap:8px}
+.toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,40px);background:var(--coffee);border:1px solid var(--gold);
+  color:var(--cream);padding:14px 24px;border-radius:40px;opacity:0;transition:.4s;z-index:300;font-size:.85rem}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:980px){.pdp{grid-template-columns:1fr;gap:34px;padding-top:120px}}
+@media(max-width:620px){
+  .buy .btn{width:100%;justify-content:center}
+  .cart-row{align-items:flex-start;flex-direction:column}
+  .cart-total{text-align:left}
+  .cart-actions{justify-content:flex-start;width:100%}
+  .cart-actions .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+<nav class="site solid">
+  <a class="brand" href="/concept-a/" aria-label="Java Lava home"><img src="../assets/product-6cafc4.png" alt="Java Lava" /></a>
+  <div class="links"><a href="index.html">Home</a><a href="story.html">Our Story</a><a href="shop.html" class="active">Shop</a><a href="merch.html">Merch</a><a href="locator.html">Store Locations</a><a href="contact.html">Contact</a></div>
+  <a class="btn" href="#buy">Get Inspired</a>
+  <button class="menu-btn" aria-label="Menu"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+</nav>
+<div class="drawer" id="drawer"><a href="index.html">Home</a><a href="story.html">Our Story</a><a href="shop.html">Shop</a><a href="merch.html">Merch</a><a href="locator.html">Store Locations</a><a href="contact.html">Contact</a></div>
+
+<main class="shell" style="padding-top:0">
+  <div class="pdp">
+    <div class="reveal">
+      <div class="media">
+        <img src="../assets/shop-java-lava-main.jpg" alt="Java Lava coffee liqueur bottle at the bar" id="mainImg" />
+      </div>
+      <div class="thumbs">
+        <img src="../assets/shop-java-lava-main.jpg" class="active" onclick="document.getElementById('mainImg').src=this.src" alt="Java Lava coffee liqueur bottle at the bar" />
+        <img src="../assets/shop-java-lava-beans-upright.jpg" onclick="document.getElementById('mainImg').src=this.src" alt="Java Lava bottle standing on coffee beans" />
+        <img src="../assets/shop-java-lava-beans-angle.jpg" onclick="document.getElementById('mainImg').src=this.src" alt="Angled Java Lava bottle with coffee beans" />
+        <img src="../assets/shop-java-lava-beans-overhead.jpg" onclick="document.getElementById('mainImg').src=this.src" alt="Java Lava bottle laid over coffee beans" />
+        <img src="../assets/shop-java-lava-handheld-bar.jpg" onclick="document.getElementById('mainImg').src=this.src" alt="Hand holding Java Lava bottle at the bar" />
+        <img src="../assets/shop-java-lava-lifestyle-hold.jpg" onclick="document.getElementById('mainImg').src=this.src" alt="Java Lava bottle held for a lifestyle product photo" />
+        <img src="../assets/shop-java-lava-bar-bottle.jpg" onclick="document.getElementById('mainImg').src=this.src" alt="Java Lava bottle in front of a warm bar" />
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="breadcrumb"><a href="index.html">Home</a> / Shop</div>
+      <span class="kicker" style="margin-top:14px">Premium Coffee Liqueur</span>
+      <h1 class="serif" style="font-size:clamp(2.4rem,5vw,3.6rem);font-weight:500;line-height:1.05;margin:6px 0 4px">Java Lava Coffee Liqueur</h1>
+      <div class="price-row"><span class="price">$35.99</span><span class="meta">750ml · 20% ABV · 40 Proof</span></div>
+      <p class="body">A premium cold-brew liqueur blending ethically sourced Arabica beans with the warmth of
+        Caribbean rum and the earthy sweetness of blue agave. Bold enough for cocktails, smooth enough to sip neat.</p>
+
+      <div class="notes">
+        <div class="note"><span class="lab">Roast</span><div class="meter"><span style="width:88%"></span></div></div>
+        <div class="note"><span class="lab">Spice</span><div class="meter"><span style="width:64%"></span></div></div>
+        <div class="note"><span class="lab">Earth</span><div class="meter"><span style="width:72%"></span></div></div>
+        <div class="note"><span class="lab">Sweetness</span><div class="meter"><span style="width:48%"></span></div></div>
+      </div>
+
+      <div class="buy">
+        <div class="qty"><button onclick="qty(-1)" aria-label="Decrease">−</button><span id="q">1</span><button onclick="qty(1)" aria-label="Increase">+</button></div>
+        <button class="btn" id="addToCartButton" onclick="addCart()">Add to cart — $<span id="total">35.99</span></button>
+      </div>
+      <div class="cart-panel" id="cartPanel" aria-live="polite">
+        <div class="cart-row">
+          <div>
+            <div class="cart-title">Java Lava Coffee Liqueur</div>
+            <div class="cart-meta"><span id="cartQty">1</span> bottle · 750ml · 20% ABV</div>
+          </div>
+          <div class="cart-total">$<span id="cartTotal">35.99</span></div>
+        </div>
+        <div class="cart-row">
+          <p class="cart-note">Checkout is powered by AccelPay. Adult signature and delivery availability are confirmed during checkout.</p>
+          <div class="cart-actions">
+            <div class="cart-slot" data-bccartbutton aria-label="AccelPay cart"></div>
+            <div id="accelpayNativeAdd" data-bclistingid="4041828" data-bcvariantid="4041830" style="display:none"><button type="button">ADD TO CART</button></div>
+            <button class="btn ghost" type="button" onclick="clearCart()">Remove</button>
+            <button class="btn" type="button" onclick="openAccelPayCart()">Checkout</button>
+          </div>
+        </div>
+      </div>
+      <div class="trust">
+        <div>✓ Ships in 1–2 days</div><div>✓ Ages 21+ · ID on delivery</div><div>✓ Secure checkout</div>
+      </div>
+
+      <div class="acc" style="margin-top:30px">
+        <details open><summary>Tasting notes <span class="plus">+</span></summary><p>Roasted Arabica and dark cocoa on the nose. A velvety palate of espresso, warm baking spice and earthy agave, with a long, gently sweet finish. Roast • Spice • Earth.</p></details>
+        <details><summary>Ingredients <span class="plus">+</span></summary><p>Ethically sourced Arabica coffee, Caribbean rum, blue agave. No artificial colors. 20% ABV (40 proof).</p></details>
+        <details><summary>How to serve <span class="plus">+</span></summary><p>Neat over a large rock, shaken into an espresso martini, or floated over cold brew with cream. See our <a href="merch.html" style="color:var(--gold-lt)">cocktail recipes</a>.</p></details>
+        <details><summary>Shipping &amp; returns <span class="plus">+</span></summary><p>Dispatched within 1–2 business days. Adult signature (21+) required on delivery. Unopened bottles returnable within 30 days.</p></details>
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="site">
+  <div class="fgrid">
+    <div><div class="brand"><img src="../assets/product-6cafc4.png" alt="Java Lava" /></div>
+      <p>Premium coffee liqueur, born from volcanic soil. Ignite the flow.</p>
+      <div class="socials"><a href="https://www.instagram.com/drinkjavalava/" target="_blank" rel="noopener" aria-label="Instagram"><img src="../assets/social-1.png" alt="Instagram" /></a><a href="https://www.facebook.com/profile.php?id=61581727574919" target="_blank" rel="noopener" aria-label="Facebook"><img src="../assets/social-2.png" alt="Facebook" /></a><a href="https://www.tiktok.com/@drinkjavalava" target="_blank" rel="noopener" aria-label="TikTok"><img src="../assets/social-3.png" alt="TikTok" /></a></div></div>
+    <div><h5>Explore</h5><ul><li><a href="story.html">Our Story</a></li><li><a href="shop.html">Shop</a></li><li><a href="merch.html">Merch</a></li><li><a href="locator.html">Store Locations</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div><h5>Support</h5><ul><li><a href="shipping-policy.html">Shipping Policy</a></li><li><a href="refund-policy.html">Refund &amp; Cancellation Policy</a></li><li><a href="privacy-policy.html">Privacy Policy</a></li><li><a href="accessibility-statement.html">Accessibility Statement</a></li><li><a href="terms-conditions.html">Terms &amp; Conditions</a></li></ul></div>
+  </div>
+  <div class="legal"><span>© 2026 Java Lava. Please enjoy responsibly. 21+.</span><span class="site-credit">Developed and Designed by <a href="https://alchemydev.io/" target="_blank" rel="noopener">Alchemy Dev</a></span></div>
+</footer>
+
+<div class="toast" id="toast">Added to cart — enjoy responsibly 🥃</div>
+
+<script src="../vendor/gsap.min.js"></script>
+<script src="../vendor/ScrollTrigger.min.js"></script>
+<script src="../vendor/lenis.min.js"></script>
+<script src="js/site.js"></script>
+<script>
+window.apbrand=window.apbrand||{id:4041823};
+var n=1, cartQty=0, P=35.99;
+var productData={
+  // TODO: Add real AccelPay listingId and variantId here.
+  accelpayListingId:'4041828',
+  accelpayVariantId:'4041830'
+};
+function money(v){return v.toFixed(2);}
+function refreshTotals(){
+  document.getElementById('q').textContent=n;
+  document.getElementById('total').textContent=money(n*P);
+  if(cartQty>0){
+    document.getElementById('cartQty').textContent=cartQty;
+    document.getElementById('cartTotal').textContent=money(cartQty*P);
+  }
+}
+function qty(d){n=Math.max(1,n+d);refreshTotals();}
+function toast(message){
+  var t=document.getElementById('toast');
+  t.textContent=message;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2200);
+}
+function addCart(){
+  cartQty=n;
+  document.getElementById('cartPanel').classList.add('active');
+  var btn=document.getElementById('addToCartButton');
+  btn.classList.add('is-added');
+  btn.innerHTML='Added — $<span id="total">'+money(n*P)+'</span>';
+  refreshTotals();
+  toast(cartQty+' bottle'+(cartQty>1?'s':'')+' added to cart');
+  setTimeout(function(){
+    btn.classList.remove('is-added');
+    btn.innerHTML='Add to cart — $<span id="total">'+money(n*P)+'</span>';
+  },1800);
+}
+function clearCart(){
+  cartQty=0;
+  document.getElementById('cartPanel').classList.remove('active');
+  toast('Cart cleared');
+}
+function openAccelPayCart(){
+  if(!productData.accelpayListingId||!productData.accelpayVariantId){
+    toast('AccelPay product mapping missing.');
+    return;
+  }
+  if(window.apbrand&&apbrand.accelpay&&apbrand.accelpay.config){apbrand.accelpay.config.url='https://cart.accelpay.io';}
+  var frame=document.getElementById('accelpay-iframe');
+  if(frame&&frame.src.indexOf('https://cart.accelpay.io')!==0){
+    frame.src='https://cart.accelpay.io/4041823/embed/cart';
+    setTimeout(openAccelPayCart,1400);
+    return;
+  }
+  var btn=document.querySelector('#accelpayNativeAdd button');
+  if(!btn){toast('AccelPay checkout is still loading.');return;}
+  for(var i=0;i<(cartQty||n);i++){btn.click();}
+}
+document.querySelectorAll('.thumbs img').forEach(function(im){im.addEventListener('click',function(){document.querySelectorAll('.thumbs img').forEach(function(x){x.classList.remove('active');});im.classList.add('active');});});
+</script>
+<script async src="https://cart.accelpay.io/scripts/brand.js"></script>
+<script>
+  apbrand = { id: 4041823 };
+</script>
+</body>
+</html>

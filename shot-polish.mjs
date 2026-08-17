@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch();
+const p = await (await b.newContext({viewport:{width:1280,height:800}})).newPage();
+await p.goto('https://java-lava.vercel.app/concept-a/index.html',{waitUntil:'networkidle'});
+await p.waitForTimeout(1200);
+await p.click('#ageYes').catch(()=>{});
+await p.waitForTimeout(1500);
+await p.screenshot({path:'shots/polish-home.png'});
+await p.evaluate(()=>window.scrollTo(0,document.body.scrollHeight*0.30));
+await p.waitForTimeout(1000);
+await p.screenshot({path:'shots/polish-product.png'});
+await b.close(); console.log('done');

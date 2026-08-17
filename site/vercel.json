@@ -1,0 +1,7 @@
+{
+  "cleanUrls": true,
+  "redirects": [
+    { "source": "/concept-a", "destination": "/", "permanent": true },
+    { "source": "/concept-a/:path*", "destination": "/:path*", "permanent": true }
+  ]
+}

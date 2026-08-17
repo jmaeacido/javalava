@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /email-admin
+Disallow: /merch-admin
+
+Sitemap: https://www.javalava.rocks/sitemap.xml

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blog — Java Lava</title>
+<meta name="description" content="Cocktail recipes, coffee culture, and spirit stories from the Java Lava team." />
+<meta name="keywords" content="Java Lava blog, coffee liqueur recipes, cocktail culture" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://www.javalava.rocks/blog" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Java Lava" />
+<meta property="og:title" content="Blog — Java Lava" />
+<meta property="og:description" content="Cocktail recipes, coffee culture, and spirit stories from the Java Lava team." />
+<meta property="og:image" content="https://java-lava-eta.vercel.app/assets/og.jpg" />
+<meta property="og:url" content="https://www.javalava.rocks/blog" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Blog — Java Lava" />
+<meta name="twitter:description" content="Cocktail recipes, coffee culture, and spirit stories from the Java Lava team." />
+<meta name="twitter:image" content="https://java-lava-eta.vercel.app/assets/og.jpg" />
+<link rel="icon" href="assets/product-6cafc4.png" />
+<link rel="alternate" type="application/rss+xml" title="Java Lava Blog RSS" href="/rss.xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Josefin+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/site.css" />
+<style>
+/* ── Blog Index ── */
+.blog-hero{position:relative;padding:160px 40px 80px;text-align:center;overflow:hidden}
+.blog-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(212,160,23,.12),transparent 70%);pointer-events:none}
+.blog-hero .kicker{margin-bottom:18px}
+.blog-hero h1{font-family:var(--font-display);font-size:clamp(2.6rem,6vw,5rem);font-weight:700;line-height:1.06;margin-bottom:22px}
+.blog-hero p{max-width:520px;margin:0 auto 40px;color:rgba(242,232,214,.72);font-size:1rem;line-height:1.7}
+
+/* Category nav */
+.cat-nav{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:0 40px 60px;max-width:900px;margin:0 auto}
+.cat-pill{padding:8px 20px;border-radius:40px;border:1px solid rgba(212,160,23,.28);color:var(--cream);font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;cursor:pointer;background:transparent;transition:background .25s,border-color .25s}
+.cat-pill:hover,.cat-pill.active{background:rgba(212,160,23,.14);border-color:rgba(212,160,23,.6)}
+.cat-pill.active{color:var(--gold)}
+
+/* Grid */
+.blog-shell{max-width:1180px;margin:0 auto;padding:0 40px 100px}
+.blog-grid{display:grid;grid-template-columns:1fr;gap:28px}
+@media(min-width:640px){.blog-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.blog-grid{grid-template-columns:repeat(3,1fr)}}
+
+/* Featured post — spans full width on first row */
+.blog-grid .post-card:first-child{grid-column:1/-1}
+@media(min-width:640px){.blog-grid .post-card:first-child .card-img{aspect-ratio:16/7}}
+
+/* Card */
+.post-card{border:1px solid rgba(212,160,23,.15);border-radius:12px;overflow:hidden;background:rgba(10,8,6,.6);transition:border-color .3s,transform .3s,box-shadow .3s;cursor:pointer}
+.post-card:hover{border-color:rgba(212,160,23,.4);transform:translateY(-3px);box-shadow:0 20px 50px rgba(0,0,0,.4)}
+.card-img{aspect-ratio:16/9;overflow:hidden;background:rgba(42,32,16,.6);position:relative}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.post-card:hover .card-img img{transform:scale(1.04)}
+.card-img .img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(42,32,16,.8),rgba(10,8,6,.9))}
+.card-img .img-placeholder svg{opacity:.25}
+.card-body{padding:22px 22px 26px}
+.card-cat{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-family:var(--font-serif);font-weight:600;margin-bottom:10px;display:block}
+.card-title{font-family:var(--font-display);font-size:clamp(1.1rem,2vw,1.45rem);font-weight:600;line-height:1.22;margin-bottom:12px;color:var(--cream)}
+.post-card:first-child .card-title{font-size:clamp(1.5rem,3vw,2.1rem)}
+.card-excerpt{font-size:.86rem;line-height:1.65;color:rgba(242,232,214,.65);margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{display:flex;align-items:center;gap:14px;font-size:.75rem;color:rgba(242,232,214,.45);letter-spacing:.05em}
+.card-meta .dot{width:3px;height:3px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* Empty / loading */
+.blog-empty{text-align:center;padding:80px 20px;color:rgba(242,232,214,.45)}
+.blog-empty p{font-size:1rem;margin-top:12px}
+.blog-loading{display:flex;justify-content:center;padding:80px 20px}
+.blog-loading[hidden],.blog-grid[hidden],.blog-empty[hidden],.blog-pagination[hidden]{display:none!important}
+.spinner{width:36px;height:36px;border:2px solid rgba(212,160,23,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Pagination */
+.blog-pagination{display:flex;justify-content:center;align-items:center;gap:14px;padding:40px 0 0}
+.page-btn{padding:9px 20px;border-radius:40px;border:1px solid rgba(212,160,23,.28);background:transparent;color:var(--cream);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;cursor:pointer;transition:background .25s,border-color .25s}
+.page-btn:hover:not(:disabled){background:rgba(212,160,23,.12);border-color:rgba(212,160,23,.55)}
+.page-btn:disabled{opacity:.3;cursor:default}
+.page-info{font-size:.8rem;color:rgba(242,232,214,.45)}
+
+@media(max-width:600px){
+  .blog-hero{padding:130px 24px 60px}
+  .cat-nav{padding:0 24px 48px}
+  .blog-shell{padding:0 24px 80px}
+}
+</style>
+</head>
+<body>
+
+<nav class="site" id="nav">
+  <a class="brand" href="index.html" aria-label="Java Lava home"><img src="assets/product-6cafc4.png" alt="Java Lava" /></a>
+  <div class="links"><a href="index.html">Home</a><a href="story.html">Our Story</a><a href="shop.html">Shop</a><a href="merch.html">Merch</a><a href="locator.html">Store Locations</a><a href="contact.html">Contact</a></div>
+  <a class="btn" href="shop.html">Get Inspired</a>
+  <button class="menu-btn" aria-label="Menu"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+</nav>
+<div class="drawer" id="drawer"><a href="index.html">Home</a><a href="story.html">Our Story</a><a href="shop.html">Shop</a><a href="merch.html">Merch</a><a href="locator.html">Store Locations</a><a href="contact.html">Contact</a></div>
+
+<!-- HERO -->
+<header class="blog-hero">
+  <span class="kicker">Journal</span>
+  <h1 class="gold-text">Blog</h1>
+  <p>Cocktail recipes, coffee knowledge, and spirit stories from the Java Lava team.</p>
+</header>
+
+<!-- CATEGORY NAV -->
+<div class="cat-nav" id="catNav">
+  <button class="cat-pill active" data-cat="">All</button>
+</div>
+
+<!-- BLOG GRID -->
+<main class="blog-shell">
+  <div id="blogLoading" class="blog-loading">
+    <div class="spinner"></div>
+  </div>
+  <div id="blogGrid" class="blog-grid" hidden></div>
+  <div id="blogEmpty" class="blog-empty" hidden>
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(212,160,23,.4)" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM12 7v5M12 16h.01"/></svg>
+    <p>No posts found.</p>
+  </div>
+  <div id="blogPagination" class="blog-pagination" hidden>
+    <button class="page-btn" id="prevPage" disabled>← Prev</button>
+    <span class="page-info" id="pageInfo"></span>
+    <button class="page-btn" id="nextPage">Next →</button>
+  </div>
+</main>
+
+<!-- NEWSLETTER -->
+<section class="newsletter"><div class="shell tight">
+  <div class="reveal">
+    <span class="kicker">Stay in the loop</span>
+    <h2 class="title">Join the flow</h2>
+    <div class="lava-rule"></div>
+    <p class="body" style="max-width:430px">New serves, drop dates and the occasional volcanic experiment — straight to your inbox.</p>
+  </div>
+  <div class="reveal">
+    <form novalidate>
+      <div class="nl-form">
+        <input type="email" name="email" required placeholder="you@example.com" aria-label="Email address" />
+        <button class="btn" type="submit">Sign Up</button>
+      </div>
+      <div class="nl-note">No spam, ever. 21+ only · unsubscribe anytime.</div>
+      <div class="nl-error" hidden>Signup could not be saved. Please try again.</div>
+      <div class="nl-ok"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> You're on the list — welcome to the flow.</div>
+    </form>
+  </div>
+</div></section>
+
+<footer class="site">
+  <div class="fgrid">
+    <div>
+      <div class="brand"><img class="footer-logo" src="assets/product-6cafc4.png" alt="Java Lava" /></div>
+      <p>Premium coffee liqueur, born from volcanic soil. Ignite the flow.</p>
+      <div class="socials">
+        <a href="https://www.instagram.com/drinkjavalava/" target="_blank" rel="noopener" aria-label="Instagram"><img src="assets/social-1.png" alt="Instagram" /></a>
+        <a href="https://www.facebook.com/profile.php?id=61581727574919" target="_blank" rel="noopener" aria-label="Facebook"><img src="assets/social-2.png" alt="Facebook" /></a>
+        <a href="https://www.tiktok.com/@drinkjavalava" target="_blank" rel="noopener" aria-label="TikTok"><img src="assets/social-3.png" alt="TikTok" /></a>
+      </div>
+    </div>
+    <div><h5>Explore</h5><ul><li><a href="story.html">Our Story</a></li><li><a href="shop.html">Shop</a></li><li><a href="merch.html">Merch</a></li><li><a href="locator.html">Store Locations</a></li><li><a href="contact.html">Contact</a></li><li><a href="blog.html">Blog</a></li></ul></div>
+    <div><h5>Support</h5><ul><li><a href="shipping-policy.html">Shipping Policy</a></li><li><a href="refund-policy.html">Refund &amp; Cancellation Policy</a></li><li><a href="privacy-policy.html">Privacy Policy</a></li><li><a href="accessibility-statement.html">Accessibility Statement</a></li><li><a href="terms-conditions.html">Terms &amp; Conditions</a></li></ul></div>
+  </div>
+  <div class="legal"><span>© 2026 Java Lava. Please enjoy responsibly. 21+.</span><span class="site-credit">Developed and Designed by <a href="https://alchemydev.io/" target="_blank" rel="noopener">Alchemy Dev</a></span></div>
+</footer>
+
+<script src="site/vendor/gsap.min.js"></script>
+<script src="site/vendor/ScrollTrigger.min.js"></script>
+<script src="js/site.js"></script>
+<script src="js/api-config.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const PAGE_SIZE = 12;
+  let currentPage = 1;
+  let currentCat  = '';
+  let totalPosts  = 0;
+  let categories  = [];
+
+  const grid        = document.getElementById('blogGrid');
+  const loading     = document.getElementById('blogLoading');
+  const empty       = document.getElementById('blogEmpty');
+  const pagination  = document.getElementById('blogPagination');
+  const prevBtn     = document.getElementById('prevPage');
+  const nextBtn     = document.getElementById('nextPage');
+  const pageInfo    = document.getElementById('pageInfo');
+  const catNav      = document.getElementById('catNav');
+
+  function fetchBlog(path) {
+    if (window.JavaLavaApi && window.JavaLavaApi.fetchWithFallback) {
+      return window.JavaLavaApi.fetchWithFallback(path);
+    }
+    return fetch(path);
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function cardHtml(post, featured) {
+    const cat  = post.blog_categories;
+    const img  = post.featured_image
+      ? `<img src="${escHtml(post.featured_image)}" alt="${escHtml(post.title)}" loading="${featured ? 'eager' : 'lazy'}" />`
+      : `<div class="img-placeholder"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9l4-4 4 4 4-5 6 7"/><circle cx="8.5" cy="6.5" r="1.5"/></svg></div>`;
+    const readTime = post.read_time_mins ? `${post.read_time_mins} min read` : '';
+    return `
+      <article class="post-card reveal" data-slug="${escHtml(post.slug)}" tabindex="0" role="article" aria-label="${escHtml(post.title)}">
+        <div class="card-img">${img}</div>
+        <div class="card-body">
+          ${cat ? `<span class="card-cat">${escHtml(cat.name)}</span>` : ''}
+          <h2 class="card-title">${escHtml(post.title)}</h2>
+          ${post.excerpt ? `<p class="card-excerpt">${escHtml(post.excerpt)}</p>` : ''}
+          <div class="card-meta">
+            <span>${escHtml(post.author_name || 'Java Lava')}</span>
+            ${post.published_at ? `<span class="dot"></span><span>${formatDate(post.published_at)}</span>` : ''}
+            ${readTime ? `<span class="dot"></span><span>${readTime}</span>` : ''}
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function navigateToPost(slug) {
+    window.location.href = `blog-post.html?slug=${encodeURIComponent(slug)}`;
+  }
+
+  async function loadPosts(page, cat) {
+    loading.hidden = false;
+    grid.hidden = true;
+    empty.hidden = true;
+    pagination.hidden = true;
+
+    let path = `/api/blog?action=posts&page=${page}&pageSize=${PAGE_SIZE}`;
+    if (cat) path += `&category=${encodeURIComponent(cat)}`;
+
+    try {
+      const r = await fetchBlog(path);
+      if (!r.ok) throw new Error('API error');
+      const data = await r.json();
+      const posts = data.posts || [];
+      totalPosts = data.total || 0;
+
+      loading.hidden = true;
+
+      if (!posts.length) {
+        empty.hidden = false;
+        return;
+      }
+
+      // Collect categories for nav
+      if (page === 1 && !cat) {
+        const seen = new Set();
+        posts.forEach(p => {
+          if (p.blog_categories && !seen.has(p.blog_categories.slug)) {
+            seen.add(p.blog_categories.slug);
+            if (!categories.find(c => c.slug === p.blog_categories.slug)) {
+              categories.push(p.blog_categories);
+            }
+          }
+        });
+        renderCatNav();
+      }
+
+      grid.innerHTML = posts.map((p, i) => cardHtml(p, i === 0 && page === 1)).join('');
+      grid.hidden = false;
+
+      // Add click handlers
+      grid.querySelectorAll('.post-card').forEach(card => {
+        const slug = card.dataset.slug;
+        card.addEventListener('click', () => navigateToPost(slug));
+        card.addEventListener('keydown', e => { if (e.key === 'Enter') navigateToPost(slug); });
+      });
+
+      // Pagination
+      const totalPages = Math.ceil(totalPosts / PAGE_SIZE);
+      if (totalPages > 1) {
+        pagination.hidden = false;
+        prevBtn.disabled  = page <= 1;
+        nextBtn.disabled  = page >= totalPages;
+        pageInfo.textContent = `Page ${page} of ${totalPages}`;
+      }
+
+      // Trigger GSAP reveals if available
+      if (window.gsap && window.ScrollTrigger) {
+        grid.querySelectorAll('.reveal').forEach(el => {
+          gsap.fromTo(el, { opacity: 0, y: 30 }, {
+            opacity: 1, y: 0, duration: .7, ease: 'power2.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+          });
+        });
+      } else {
+        grid.querySelectorAll('.reveal').forEach(el => {
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        });
+      }
+
+    } catch (err) {
+      loading.hidden = true;
+      empty.hidden = false;
+    }
+  }
+
+  function renderCatNav() {
+    // Remove existing dynamic pills
+    catNav.querySelectorAll('[data-cat]:not([data-cat=""])').forEach(el => el.remove());
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'cat-pill';
+      btn.dataset.cat = cat.slug;
+      btn.textContent = cat.name;
+      catNav.appendChild(btn);
+    });
+    bindCatNav();
+  }
+
+  function bindCatNav() {
+    catNav.querySelectorAll('.cat-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        catNav.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCat  = btn.dataset.cat;
+        currentPage = 1;
+        loadPosts(currentPage, currentCat);
+      });
+    });
+  }
+
+  prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; loadPosts(currentPage, currentCat); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
+  nextBtn.addEventListener('click', () => { currentPage++; loadPosts(currentPage, currentCat); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+  bindCatNav();
+  const boot = function () { loadPosts(1, ''); };
+  if (window.JavaLavaApi && window.JavaLavaApi.loadLocalConfig) {
+    window.JavaLavaApi.loadLocalConfig().finally(boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

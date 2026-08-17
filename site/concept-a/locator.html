@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Store Locations — Java Lava</title>
+<meta name="description" content="Find Java Lava Coffee Liqueur at a stockist near you, or order online." />
+<meta name="keywords" content="Java Lava store locator" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://www.javalava.rocks/store-location" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Java Lava" />
+<meta property="og:title" content="Store Locations — Java Lava" />
+<meta property="og:description" content="Find Java Lava Coffee Liqueur at a stockist near you, or order online." />
+<meta property="og:image" content="https://java-lava-eta.vercel.app/assets/og.jpg" />
+<meta property="og:url" content="https://www.javalava.rocks/store-location" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Store Locations — Java Lava" />
+<meta name="twitter:description" content="Find Java Lava Coffee Liqueur at a stockist near you, or order online." />
+<meta name="twitter:image" content="https://java-lava-eta.vercel.app/assets/og.jpg" />
+<link rel="icon" href="../assets/product-6cafc4.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Josefin+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/site.css" />
+<style>
+body{background:#000}
+.locator-hero{min-height:32vh;padding-top:125px;padding-bottom:42px}
+.locator-hero .bg{background-position:center 44%}
+.locator-hero h1{font-size:clamp(2.5rem,5.2vw,4.4rem)}
+.locator-hero p{max-width:580px}
+.locator-wrap{background:#000;position:relative}
+.locator-toolbar{position:absolute;top:24px;left:50%;z-index:5;display:grid;grid-template-columns:minmax(260px,380px) 1fr;gap:18px;width:min(calc(100% - 80px),var(--maxw));align-items:start;transform:translateX(-50%);pointer-events:none}
+.locator-toolbar>*{pointer-events:auto}
+.searchbar{display:flex;gap:10px}
+.searchbar input{min-width:0;flex:1;padding:13px 16px;border-radius:6px;border:1px solid rgba(201,162,75,.45);background:rgba(18,13,8,.92);color:var(--cream);font-family:inherit;box-shadow:0 12px 26px rgba(0,0,0,.24)}
+.searchbar input:focus{outline:none;border-color:var(--gold)}
+.locator-status{align-self:center;width:max-content;max-width:100%;color:rgba(244,235,221,.78);font-size:.84rem;line-height:1.5;padding:10px 14px;border-radius:6px;background:rgba(8,6,4,.74);box-shadow:0 12px 26px rgba(0,0,0,.2)}
+.map-layout{position:relative;min-height:690px;border-top:1px solid rgba(201,162,75,.16);border-bottom:1px solid rgba(201,162,75,.16)}
+#storeMap{min-height:690px;background:#efe6cf}
+.map-error{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:690px;padding:34px 24px 40px;background:#160d07;color:var(--cream);gap:24px}
+.map-error.active{display:flex}
+.map-error-copy{max-width:640px}
+.map-error strong{display:block;color:var(--ember);font-size:1.2rem;margin-bottom:8px}
+.map-error p{margin:0;color:rgba(244,235,221,.72);line-height:1.65}
+.store-list-panel{position:absolute;top:10px;right:56px;bottom:18px;z-index:4;display:flex;flex-direction:column;width:min(340px,calc(100% - 76px));max-height:calc(100% - 28px);border:1px solid rgba(212,160,23,.28);border-radius:10px;background:rgba(10,8,6,.42);box-shadow:0 18px 40px rgba(0,0,0,.28);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:14px 12px 12px;pointer-events:auto}
+.store-list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.store-list-head h2{margin:0;font-family:var(--font-display);font-size:1.2rem;font-weight:600;color:#F2E8D6;line-height:1.1}
+.store-list-head-meta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.store-list-count{color:var(--gold);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;white-space:nowrap}
+.store-list-toggle{display:none;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid rgba(212,160,23,.35);border-radius:8px;background:rgba(18,13,8,.45);color:var(--gold-lt);cursor:pointer;padding:0;flex-shrink:0}
+.store-list-toggle svg{width:16px;height:16px;transition:transform .2s ease}
+.store-list-panel.is-collapsed .store-list-toggle svg{transform:rotate(180deg)}
+.store-list-body{display:flex;flex-direction:column;flex:1;min-height:0}
+.store-list-filter{width:100%;margin-bottom:10px;padding:10px 12px;border-radius:6px;border:1px solid rgba(201,162,75,.4);background:rgba(18,13,8,.48);color:var(--cream);font:500 .8rem/1.3 var(--font-sans)}
+.store-list-filter::placeholder{color:rgba(244,235,221,.42)}
+.store-list-filter:focus{outline:none;border-color:var(--gold)}
+.store-list{flex:1;overflow:auto;display:flex;flex-direction:column;gap:7px;padding-right:2px;min-height:0;scrollbar-width:thin;scrollbar-color:rgba(212,160,23,.45) transparent}
+.store-list-item{display:grid;gap:4px;width:100%;text-align:left;padding:11px 12px;border-radius:8px;border:1px solid rgba(212,160,23,.18);background:rgba(18,13,8,.38);color:inherit;cursor:pointer;font:inherit;transition:border-color .18s ease,background .18s ease}
+.store-list-item:hover{border-color:rgba(212,160,23,.42);background:rgba(42,32,16,.5)}
+.store-list-item.is-active{border-color:rgba(212,160,23,.72);background:rgba(42,32,16,.62);box-shadow:inset 0 0 0 1px rgba(212,160,23,.18)}
+.store-list-item strong{color:#F2E8D6;font-size:.86rem;line-height:1.3;font-weight:600}
+.store-list-item span{color:rgba(244,235,221,.72);font-size:.76rem;line-height:1.45}
+.store-list-item .stock{color:var(--gold-lt);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.store-list-item .stock a{color:inherit}
+.store-list-empty{padding:16px 8px;color:rgba(244,235,221,.62);font-size:.82rem;line-height:1.5}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.store-fallback{width:min(100%,920px);text-align:left}
+.store-fallback-head{color:var(--gold);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;margin:0 0 12px;text-align:center}
+.store-fallback-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.store-card{border:1px solid rgba(212,160,23,.22);border-radius:10px;background:rgba(18,13,8,.82);padding:16px;display:grid;gap:8px}
+.store-card strong{color:#F2E8D6;font-size:.98rem;line-height:1.3}
+.store-card span{color:rgba(244,235,221,.72);font-size:.84rem;line-height:1.45}
+.store-card .stock{color:var(--gold-lt);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.store-card a{color:var(--gold-lt);font-size:.82rem;text-decoration:underline;text-underline-offset:2px;width:max-content}
+.search-fallback{display:none;padding:28px 24px 40px;background:#0A0806;border-top:1px solid rgba(212,160,23,.16)}
+.search-fallback.active{display:block}
+.search-fallback p{max-width:680px;margin:0 auto 18px;text-align:center;color:rgba(244,235,221,.78);line-height:1.6}
+.gm-style .gm-style-iw-c{background:#120d08;border:1px solid rgba(244,216,138,.72);border-radius:8px;box-shadow:0 14px 34px rgba(0,0,0,.5);padding:0}
+.gm-style .gm-style-iw-d{overflow:hidden!important}
+.gm-style .gm-style-iw-tc::after{background:#120d08;border-left:1px solid rgba(244,216,138,.72);border-top:1px solid rgba(244,216,138,.72)}
+.gm-style .gm-ui-hover-effect{opacity:.85!important;top:0!important;right:0!important}
+.gm-style .gm-ui-hover-effect span{background-color:#f4d88a}
+.map-tooltip{color:var(--cream);font-family:inherit;line-height:1.35;max-width:260px;padding:0 0 16px;overflow:hidden}
+.map-tooltip img{width:260px;height:118px;object-fit:cover;background:#2b210f;display:block;margin-bottom:14px}
+.map-tooltip strong{display:block;color:#fff;font-size:.92rem;font-weight:700;margin-bottom:5px}
+.map-tooltip strong,.map-tooltip span,.map-tooltip a{margin-left:18px;margin-right:18px}
+.map-tooltip span{display:block;color:rgba(244,235,221,.72);font-size:.78rem;margin-bottom:8px}
+.map-tooltip a{color:var(--gold-lt);font-size:.78rem;text-decoration:underline;text-underline-offset:2px}
+footer.site{background:#000}
+@media(max-width:980px){
+  .locator-hero{min-height:0;padding-top:110px;padding-bottom:28px}
+  .locator-hero p{font-size:.92rem;line-height:1.55}
+  .locator-toolbar{grid-template-columns:1fr;top:12px;left:56px;right:56px;width:auto;transform:none;gap:10px}
+  .locator-status{width:100%;font-size:.78rem;padding:8px 12px}
+  .map-layout{min-height:auto}
+  #storeMap,.map-error{min-height:min(68dvh,620px)}
+  .map-error{padding:24px 16px 28px}
+  .store-list-panel{top:auto;right:12px;left:12px;bottom:12px;width:auto;max-height:min(40%,280px);border-radius:12px;background:rgba(10,8,6,.58)}
+  .store-list-panel.is-collapsed{max-height:none;bottom:12px}
+  .store-list-panel.is-collapsed .store-list-body{display:none}
+  .store-list-panel.is-collapsed .store-list-head{margin-bottom:0}
+  .store-list-toggle{display:inline-flex}
+  .store-list-head{margin-bottom:8px;align-items:center;cursor:pointer}
+  .store-list-head h2{font-size:1.05rem}
+  .store-list-filter{margin-bottom:8px;padding:9px 11px;font-size:.78rem}
+  .store-list-item{padding:10px 11px}
+  .map-tooltip{max-width:min(260px,72vw)}
+  .map-tooltip img{width:100%;height:auto;aspect-ratio:260/118}
+}
+@media(max-width:640px){
+  .locator-hero{padding-top:102px;padding-bottom:22px}
+  .locator-toolbar{top:10px;left:52px;right:52px;width:auto}
+  .searchbar{gap:8px}
+  .searchbar input{padding:11px 12px;font-size:16px;box-shadow:0 8px 18px rgba(0,0,0,.22)}
+  .searchbar .btn{padding:0 14px;height:44px;flex:0 0 auto;white-space:nowrap}
+  .locator-status{display:none}
+  #storeMap,.map-error{min-height:min(58dvh,520px)}
+  .store-list-panel{left:8px;right:8px;bottom:8px;max-height:min(38%,240px);padding:10px 9px 9px;background:rgba(10,8,6,.66)}
+  .store-list-count{letter-spacing:.1em;font-size:.6rem}
+  .store-list-filter{padding:9px 10px}
+  .store-list-item strong{font-size:.82rem}
+  .store-list-item span{font-size:.72rem}
+  .map-tooltip strong,.map-tooltip span,.map-tooltip a{margin-left:14px;margin-right:14px}
+  .map-tooltip img{margin-bottom:10px}
+}
+</style>
+</head>
+<body>
+<nav class="site">
+  <a class="brand" href="/concept-a/" aria-label="Java Lava home"><img src="../assets/product-6cafc4.png" alt="Java Lava" /></a>
+  <div class="links"><a href="index.html">Home</a><a href="story.html">Our Story</a><a href="shop.html">Shop</a><a href="merch.html">Merch</a><a href="locator.html" class="active">Store Locations</a><a href="contact.html">Contact</a></div>
+  <a class="btn" href="shop.html">Get Inspired</a>
+  <button class="menu-btn" aria-label="Menu"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+</nav>
+<div class="drawer" id="drawer"><a href="index.html">Home</a><a href="story.html">Our Story</a><a href="shop.html">Shop</a><a href="merch.html">Merch</a><a href="locator.html">Store Locations</a><a href="contact.html">Contact</a></div>
+
+<main>
+  <header class="page-hero locator-hero">
+    <div class="bg" data-parallax style="background-image:url('../assets/img-58314d.webp')"></div>
+    <div class="veil"></div>
+    <div class="inner">
+      <div class="breadcrumb"><a href="index.html">Home</a> / Store Locations</div>
+      <span class="kicker" data-hero>Find Java Lava</span>
+      <h1 data-hero>Store Locations</h1>
+      <p data-hero>Ready to experience the bold fusion of premium coffee and spirits? Find an authorized retailer and enjoy Java Lava whenever the moment calls for something exceptional.</p>
+    </div>
+  </header>
+
+  <section class="locator-wrap" aria-label="Store locator">
+    <div class="locator-toolbar">
+      <form class="searchbar" id="storeSearch">
+        <input id="locationInput" type="text" placeholder="Enter city or ZIP code" autocomplete="postal-code" />
+        <button class="btn" type="submit">Search</button>
+      </form>
+      <div class="locator-status" id="locatorStatus">Showing Java Lava retailers around Atlanta, Georgia.</div>
+    </div>
+
+    <div class="map-layout">
+      <div id="storeMap" aria-label="Interactive Google map of Java Lava retailers"></div>
+      <div class="map-error" id="mapError" role="status" aria-live="polite">
+        <div class="map-error-copy">
+          <strong id="mapErrorTitle">Interactive map unavailable</strong>
+          <p id="mapErrorMessage">The map could not load right now. Browse authorized Java Lava retailers in the list, or order online from the shop.</p>
+        </div>
+        <div class="store-fallback" id="mapErrorStores" hidden></div>
+      </div>
+      <aside class="store-list-panel" id="storeListPanel" aria-label="Retailer address list">
+        <div class="store-list-head">
+          <h2>Retailers</h2>
+          <div class="store-list-head-meta">
+            <span class="store-list-count" id="storeListCount">0 stores</span>
+            <button class="store-list-toggle" id="storeListToggle" type="button" aria-expanded="true" aria-controls="storeListBody" aria-label="Toggle retailer list">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="store-list-body" id="storeListBody">
+          <label class="sr-only" for="storeListFilter">Search stores by name or address</label>
+          <input class="store-list-filter" id="storeListFilter" type="search" placeholder="Search stores" autocomplete="off" />
+          <div class="store-list" id="storeList" role="list"></div>
+        </div>
+      </aside>
+    </div>
+    <div class="search-fallback" id="searchFallback" aria-live="polite">
+      <p id="searchFallbackMessage"></p>
+      <div class="store-fallback" id="searchFallbackStores"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="fgrid">
+    <div><div class="brand"><img src="../assets/product-6cafc4.png" alt="Java Lava" /></div>
+      <p>Premium coffee liqueur, born from volcanic soil. Ignite the flow.</p>
+      <div class="socials"><a href="https://www.instagram.com/drinkjavalava/" target="_blank" rel="noopener" aria-label="Instagram"><img src="../assets/social-1.png" alt="Instagram" /></a><a href="https://www.facebook.com/profile.php?id=61581727574919" target="_blank" rel="noopener" aria-label="Facebook"><img src="../assets/social-2.png" alt="Facebook" /></a><a href="https://www.tiktok.com/@drinkjavalava" target="_blank" rel="noopener" aria-label="TikTok"><img src="../assets/social-3.png" alt="TikTok" /></a></div></div>
+    <div><h5>Explore</h5><ul><li><a href="story.html">Our Story</a></li><li><a href="shop.html">Shop</a></li><li><a href="merch.html">Merch</a></li><li><a href="locator.html">Store Locations</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div><h5>Support</h5><ul><li><a href="shipping-policy.html">Shipping Policy</a></li><li><a href="refund-policy.html">Refund &amp; Cancellation Policy</a></li><li><a href="privacy-policy.html">Privacy Policy</a></li><li><a href="accessibility-statement.html">Accessibility Statement</a></li><li><a href="terms-conditions.html">Terms &amp; Conditions</a></li></ul></div>
+  </div>
+  <div class="legal"><span>© 2026 Java Lava. Please enjoy responsibly. 21+.</span><span class="site-credit">Developed and Designed by <a href="https://alchemydev.io/" target="_blank" rel="noopener">Alchemy Dev</a></span></div>
+</footer>
+
+<script src="../vendor/gsap.min.js"></script><script src="../vendor/ScrollTrigger.min.js"></script><script src="../vendor/lenis.min.js"></script><script src="js/site.js"></script>
+<script>
+var javaLavaStores=[
+  {name:'Aloft at the Battery',address:'950 Battery Ave SE, Atlanta, GA 30339',position:{lat:33.8897,lng:-84.4688},stock:'In stock'},
+  {name:'Highland Wine & Spirits',address:'1402 N Highland Ave NE, Atlanta, GA 30306',position:{lat:33.7937,lng:-84.3514},stock:'In stock'},
+  {name:'Peachtree Bottle Shop',address:'215 Northlake Dr, Peachtree City, GA 30269',position:{lat:33.4017,lng:-84.5837},stock:'Low stock'},
+  {name:'Conyers Beverage Depot',address:'1290 Dogwood Dr SE, Conyers, GA 30013',position:{lat:33.6412,lng:-84.0088},stock:'In stock'},
+  {name:'Senoia Spirits Market',address:'75 Main St, Senoia, GA 30276',position:{lat:33.3023,lng:-84.5538},stock:'In stock'},
+  {name:'Summit Fine Wines & Spirits',address:'832 Glynn St S, Fayetteville, GA 30214',position:{lat:33.432019,lng:-84.4572163},stock:'In stock'},
+  {name:'Bim\'s Package Store',address:'1015 W Marietta St NW, Atlanta, GA 30318',position:{lat:33.7847763,lng:-84.419578},stock:'In stock'},
+  {name:'Wilshire Liquor, Wine & Beer',address:'1200 Highway 74 S, Suite 8, Peachtree City, GA 30269',position:{lat:33.3428503,lng:-84.5369987},stock:'In stock'},
+  {name:'Wine & Liquor Emporium',address:'7342 Stonecrest Concourse, Suite D, Stonecrest, GA 30038',position:{lat:33.6959433,lng:-84.0925869},stock:'In stock'},
+  {name:'Big Bad Breakfast',address:'1952 Howell Mill Rd NW, Suite 200, Atlanta, GA 30318',position:{lat:33.8079591,lng:-84.4131882},stock:'In stock'},
+  {name:'Alky\'s Liquor and Wine',address:'1530 Iris Dr SE, Conyers, GA 30013',position:{lat:33.6470178,lng:-83.9949558},stock:'In stock'},
+  {name:'Oscar\'s Package Store',address:'1475 Terrell Mill Rd SE, Suite 117, Marietta, GA 30067',position:{lat:33.9159315,lng:-84.4688225},stock:'In stock'},
+  {name:'Chapel Hill Package',address:'2981 Chapel Hill Rd, Douglasville, GA 30135',position:{lat:33.7236896,lng:-84.7336752},stock:'In stock'}
+];
+var map, geocoder, bounds, infoWindow, markers=[], mapUnavailable=false, activeStoreIndex=-1;
+var mapErrorCopy={
+  'missing-key':{
+    title:'Interactive map unavailable',
+    message:'The Google Maps connection is not configured on this preview yet. Browse authorized Java Lava retailers below, or order online from the shop.'
+  },
+  auth:{
+    title:'Interactive map unavailable',
+    message:'Google Maps rejected this site key or referrer. Retailers are listed below while the map connection is fixed.'
+  },
+  load:{
+    title:'Interactive map unavailable',
+    message:'The map could not load right now. Browse the retailer list below, or try again later.'
+  }
+};
+var javaLavaMapStyles=[
+  {elementType:'geometry',stylers:[{color:'#efe1c4'}]},
+  {elementType:'labels.text.fill',stylers:[{color:'#5d4630'}]},
+  {elementType:'labels.text.stroke',stylers:[{color:'#f8efd9'}]},
+  {featureType:'administrative',elementType:'geometry.stroke',stylers:[{color:'#c7ab7b'}]},
+  {featureType:'administrative.locality',elementType:'labels.text.fill',stylers:[{color:'#7a3f1d'}]},
+  {featureType:'landscape.man_made',elementType:'geometry',stylers:[{color:'#ead8b7'}]},
+  {featureType:'landscape.natural',elementType:'geometry',stylers:[{color:'#d8d6aa'}]},
+  {featureType:'poi',elementType:'geometry',stylers:[{color:'#dfcfaa'}]},
+  {featureType:'poi',elementType:'labels.text.fill',stylers:[{color:'#7d6642'}]},
+  {featureType:'poi.business',stylers:[{visibility:'off'}]},
+  {featureType:'road',elementType:'geometry',stylers:[{color:'#d2b783'}]},
+  {featureType:'road',elementType:'geometry.stroke',stylers:[{color:'#f3e7cb'}]},
+  {featureType:'road',elementType:'labels.text.fill',stylers:[{color:'#725536'}]},
+  {featureType:'road.arterial',elementType:'geometry',stylers:[{color:'#cda96c'}]},
+  {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#bd8e48'}]},
+  {featureType:'road.highway',elementType:'geometry.stroke',stylers:[{color:'#ead7b4'}]},
+  {featureType:'road.highway',elementType:'labels.text.fill',stylers:[{color:'#4f321e'}]},
+  {featureType:'transit',elementType:'geometry',stylers:[{color:'#d0c198'}]},
+  {featureType:'transit.station',elementType:'labels.text.fill',stylers:[{color:'#80643d'}]},
+  {featureType:'water',elementType:'geometry',stylers:[{color:'#9ecbc4'}]},
+  {featureType:'water',elementType:'labels.text.fill',stylers:[{color:'#4f7770'}]}
+];
+
+function buildJavaLavaMarkerIcon(active){
+  var width=active?46:40;
+  var height=active?58:52;
+  var fill=active?'#D4A017':'#B8860B';
+  var ring=active?'#F2E8D6':'#D4A017';
+  var svg=[
+    '<svg xmlns="http://www.w3.org/2000/svg" width="'+width+'" height="'+height+'" viewBox="0 0 40 52">',
+    '<path d="M20 50S4 31.7 4 17.8C4 8.4 11.2 1 20 1s16 7.4 16 16.8C36 31.7 20 50 20 50z" fill="'+fill+'" stroke="'+ring+'" stroke-width="2.6"/>',
+    '<circle cx="20" cy="17.5" r="7.3" fill="#2A2010" stroke="#F2E8D6" stroke-width="2"/>',
+    '<circle cx="20" cy="17.5" r="3.2" fill="'+ring+'"/>',
+    '</svg>'
+  ].join('');
+  return {
+    url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg),
+    scaledSize:new google.maps.Size(width,height),
+    anchor:new google.maps.Point(width/2,height-2)
+  };
+}
+
+function escapeHtml(value){
+  return String(value == null ? '' : value).replace(/[&<>"']/g,function(char){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
+  });
+}
+
+function setActiveListItem(index){
+  var list=document.getElementById('storeList');
+  if(!list){return;}
+  Array.prototype.forEach.call(list.querySelectorAll('.store-list-item'),function(item){
+    var isActive=Number(item.getAttribute('data-store-index'))===index;
+    item.classList.toggle('is-active',isActive);
+    item.setAttribute('aria-current',isActive?'true':'false');
+  });
+  var active=list.querySelector('.store-list-item.is-active');
+  if(active && typeof active.scrollIntoView==='function'){
+    active.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+}
+
+function renderAddressList(filterText){
+  var list=document.getElementById('storeList');
+  var count=document.getElementById('storeListCount');
+  if(!list){return;}
+  var query=String(filterText || '').trim().toLowerCase();
+  var matches=javaLavaStores.map(function(store,index){
+    return {store:store,index:index};
+  }).filter(function(entry){
+    if(!query){return true;}
+    return entry.store.name.toLowerCase().indexOf(query)!==-1 || entry.store.address.toLowerCase().indexOf(query)!==-1;
+  });
+  if(count){
+    count.textContent=matches.length===1 ? '1 store' : matches.length+' stores';
+  }
+  if(!matches.length){
+    list.innerHTML='<div class="store-list-empty">No retailers match that search.</div>';
+    return;
+  }
+  list.innerHTML=matches.map(function(entry){
+    var store=entry.store;
+    var directions='https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(store.address);
+    return [
+      '<button type="button" class="store-list-item'+(entry.index===activeStoreIndex?' is-active':'')+'" role="listitem" data-store-index="'+entry.index+'" aria-current="'+(entry.index===activeStoreIndex?'true':'false')+'">',
+      '<strong>'+escapeHtml(store.name)+'</strong>',
+      '<span>'+escapeHtml(store.address)+'</span>',
+      store.stock?'<span class="stock">'+escapeHtml(store.stock)+'</span>':'',
+      mapUnavailable?'<span class="stock"><a target="_blank" rel="noopener" href="'+escapeHtml(directions)+'" onclick="event.stopPropagation()">Get directions</a></span>':'',
+      '</button>'
+    ].join('');
+  }).join('');
+}
+
+function mapFitPadding(){
+  if(window.matchMedia('(max-width:640px)').matches){
+    return {top:72,right:24,bottom:210,left:24};
+  }
+  if(window.matchMedia('(max-width:980px)').matches){
+    return {top:90,right:36,bottom:240,left:36};
+  }
+  return {top:120,right:360,bottom:80,left:80};
+}
+
+function isCompactLocator(){
+  return window.matchMedia('(max-width:980px)').matches;
+}
+
+function setStoreListCollapsed(collapsed){
+  var panel=document.getElementById('storeListPanel');
+  var toggle=document.getElementById('storeListToggle');
+  if(!panel){return;}
+  panel.classList.toggle('is-collapsed',!!collapsed);
+  if(toggle){
+    toggle.setAttribute('aria-expanded',collapsed?'false':'true');
+    toggle.setAttribute('aria-label',collapsed?'Expand retailer list':'Collapse retailer list');
+  }
+}
+
+function bindStoreList(){
+  var list=document.getElementById('storeList');
+  var filter=document.getElementById('storeListFilter');
+  var toggle=document.getElementById('storeListToggle');
+  if(list && !list.dataset.bound){
+    list.dataset.bound='1';
+    list.addEventListener('click',function(event){
+      var item=event.target.closest('.store-list-item');
+      if(!item){return;}
+      var index=Number(item.getAttribute('data-store-index'));
+      if(Number.isNaN(index)){return;}
+      if(mapUnavailable){
+        activeStoreIndex=index;
+        setActiveListItem(index);
+        return;
+      }
+      focusStore(index,true);
+    });
+  }
+  if(filter && !filter.dataset.bound){
+    filter.dataset.bound='1';
+    filter.addEventListener('input',function(){
+      renderAddressList(filter.value);
+      setActiveListItem(activeStoreIndex);
+    });
+  }
+  if(toggle && !toggle.dataset.bound){
+    toggle.dataset.bound='1';
+    toggle.addEventListener('click',function(event){
+      event.stopPropagation();
+      var panel=document.getElementById('storeListPanel');
+      setStoreListCollapsed(!(panel && panel.classList.contains('is-collapsed')));
+    });
+  }
+  var head=document.querySelector('.store-list-head');
+  if(head && !head.dataset.bound){
+    head.dataset.bound='1';
+    head.addEventListener('click',function(){
+      if(!isCompactLocator()){return;}
+      var panel=document.getElementById('storeListPanel');
+      if(panel && panel.classList.contains('is-collapsed')){
+        setStoreListCollapsed(false);
+      }
+    });
+  }
+  if(isCompactLocator()){
+    setStoreListCollapsed(true);
+  }
+  renderAddressList(filter ? filter.value : '');
+}
+
+function initStoreLocator(){
+  var mapNode=document.getElementById('storeMap');
+  geocoder=new google.maps.Geocoder();
+  bounds=new google.maps.LatLngBounds();
+  map=new google.maps.Map(mapNode,{
+    center:{lat:33.7488,lng:-84.3877},
+    zoom:8,
+    mapTypeControl:!isCompactLocator(),
+    streetViewControl:false,
+    fullscreenControl:true,
+    fullscreenControlOptions:{position:google.maps.ControlPosition.RIGHT_TOP},
+    zoomControl:true,
+    zoomControlOptions:{position:isCompactLocator()?google.maps.ControlPosition.LEFT_TOP:google.maps.ControlPosition.RIGHT_BOTTOM},
+    gestureHandling:'greedy',
+    backgroundColor:'#efe1c4',
+    styles:javaLavaMapStyles
+  });
+  infoWindow=new google.maps.InfoWindow();
+  var defaultIcon=buildJavaLavaMarkerIcon(false);
+  javaLavaStores.forEach(function(store,index){
+    var marker=new google.maps.Marker({
+      position:store.position,
+      map:map,
+      title:store.name,
+      icon:defaultIcon,
+      animation:index===0?google.maps.Animation.DROP:null
+    });
+    marker.addListener('click',function(){focusStore(index,true);});
+    markers.push(marker);
+    bounds.extend(store.position);
+  });
+  map.fitBounds(bounds,mapFitPadding());
+  google.maps.event.addListenerOnce(map,'bounds_changed',function(){
+    if(map.getZoom()>8){map.setZoom(8);}
+  });
+  document.getElementById('storeSearch').addEventListener('submit',searchLocation);
+}
+
+function focusStore(index,panToMarker){
+  var store=javaLavaStores[index];
+  if(!store){return;}
+  activeStoreIndex=index;
+  setActiveListItem(index);
+  if(isCompactLocator()){setStoreListCollapsed(true);}
+  if(!map||mapUnavailable){return;}
+  markers.forEach(function(marker,markerIndex){
+    marker.setIcon(buildJavaLavaMarkerIcon(markerIndex===index));
+    marker.setZIndex(markerIndex===index?google.maps.Marker.MAX_ZINDEX+1:undefined);
+  });
+  if(panToMarker){
+    map.panTo(store.position);
+    map.setZoom(Math.max(map.getZoom(),10));
+  }
+  infoWindow.setContent([
+    '<div class="map-tooltip">',
+    '<img src="https://maps.googleapis.com/maps/api/streetview?size=520x236&amp;location='+encodeURIComponent(store.address)+'&amp;key='+encodeURIComponent(googleMapsApiKey())+'" alt="Street view of '+store.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" />',
+    '<strong>'+store.name+'</strong>',
+    '<span>'+store.address+'</span>',
+    '<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(store.address)+'">Directions</a>',
+    '</div>'
+  ].join(''));
+  infoWindow.open(map,markers[index]);
+}
+
+function renderStoreList(target, heading){
+  if(!target){return;}
+  target.hidden=false;
+  target.innerHTML=[
+    heading?'<p class="store-fallback-head">'+heading+'</p>':'',
+    '<div class="store-fallback-grid">',
+    javaLavaStores.map(function(store){
+      return [
+        '<article class="store-card">',
+        '<strong>'+store.name+'</strong>',
+        '<span>'+store.address+'</span>',
+        store.stock?'<span class="stock">'+store.stock+'</span>':'',
+        '<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(store.address)+'">Get directions</a>',
+        '</article>'
+      ].join('');
+    }).join(''),
+    '</div>'
+  ].join('');
+}
+
+function hideSearchFallback(){
+  var panel=document.getElementById('searchFallback');
+  panel.classList.remove('active');
+  document.getElementById('searchFallbackMessage').textContent='';
+  document.getElementById('searchFallbackStores').innerHTML='';
+}
+
+function showSearchFallback(message){
+  document.getElementById('searchFallbackMessage').textContent=message;
+  renderStoreList(document.getElementById('searchFallbackStores'),'Authorized retailers');
+  document.getElementById('searchFallback').classList.add('active');
+  document.getElementById('searchFallback').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function geocodeFailureMessage(query, geoStatus){
+  if(geoStatus==='ZERO_RESULTS'){
+    return 'We could not find "'+query+'". Try a nearby city or ZIP code, or pick a retailer below.';
+  }
+  if(geoStatus==='OVER_QUERY_LIMIT'){
+    return 'Location search is busy right now. Pick a retailer below or try again shortly.';
+  }
+  if(geoStatus==='REQUEST_DENIED'){
+    return 'Location search is temporarily unavailable. Pick a retailer below.';
+  }
+  return 'We could not look up "'+query+'". Try another city or ZIP code, or pick a retailer below.';
+}
+
+function searchLocation(event){
+  event.preventDefault();
+  var input=document.getElementById('locationInput');
+  var status=document.getElementById('locatorStatus');
+  var query=input.value.trim();
+  if(mapUnavailable){
+    status.textContent=query
+      ? 'Map search is unavailable right now. Browse the retailer list below.'
+      : 'Interactive map is unavailable. Browse retailers below.';
+    document.getElementById('mapError').scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+  if(!query){
+    hideSearchFallback();
+    map.fitBounds(bounds,mapFitPadding());
+    status.textContent='Showing Java Lava retailers around Atlanta, Georgia.';
+    return;
+  }
+  status.textContent='Searching for stores near '+query+'...';
+  geocoder.geocode({address:query},function(results,geoStatus){
+    if(geoStatus!=='OK'||!results[0]){
+      status.textContent='Location lookup did not match a result.';
+      showSearchFallback(geocodeFailureMessage(query,geoStatus));
+      return;
+    }
+    hideSearchFallback();
+    var searched=results[0].geometry.location;
+    var nearest=0;
+    var nearestDistance=Infinity;
+    javaLavaStores.forEach(function(store,index){
+      var distance=google.maps.geometry.spherical.computeDistanceBetween(searched,new google.maps.LatLng(store.position));
+      if(distance<nearestDistance){nearestDistance=distance;nearest=index;}
+    });
+    map.setCenter(searched);
+    map.setZoom(10);
+    focusStore(nearest,true);
+    status.textContent='Nearest listed retailer: '+javaLavaStores[nearest].name+'.';
+  });
+}
+
+function handleMapError(reason){
+  mapUnavailable=true;
+  var copy=mapErrorCopy[reason]||mapErrorCopy.load;
+  document.getElementById('storeMap').style.display='none';
+  document.getElementById('mapErrorTitle').textContent=copy.title;
+  document.getElementById('mapErrorMessage').textContent=copy.message;
+  document.getElementById('mapErrorStores').hidden=true;
+  document.getElementById('mapError').classList.add('active');
+  document.getElementById('locatorStatus').textContent='Map unavailable. Use the retailer list on the map.';
+  hideSearchFallback();
+  var filter=document.getElementById('storeListFilter');
+  renderAddressList(filter ? filter.value : '');
+}
+
+function googleMapsApiKey(){
+  return (window.JavaLavaConfig && window.JavaLavaConfig.googleMapsApiKey) || '';
+}
+function applyConfigScript(source){
+  return fetch(source,{cache:'no-store'}).then(function(response){
+    if(!response.ok){return false;}
+    return response.text();
+  }).then(function(scriptText){
+    if(!scriptText){return false;}
+    new Function(scriptText)();
+    return true;
+  }).catch(function(){return false;});
+}
+function loadRuntimeConfig(){
+  if(googleMapsApiKey()){return Promise.resolve(true);}
+  if(['localhost','127.0.0.1'].includes(window.location.hostname)){
+    return applyConfigScript('config.local.js');
+  }
+  return applyConfigScript('/api/google-maps-config').then(function(loaded){
+    if(loaded||googleMapsApiKey()){return true;}
+    return false;
+  });
+}
+function loadGoogleMaps(){
+  loadRuntimeConfig().then(function(){
+    var apiKey=googleMapsApiKey();
+    if(!apiKey){handleMapError('missing-key');return;}
+    var script=document.createElement('script');
+    script.async=true;
+    script.defer=true;
+    script.onerror=function(){handleMapError('load');};
+    script.src='https://maps.googleapis.com/maps/api/js?key='+encodeURIComponent(apiKey)+'&libraries=geometry&callback=initStoreLocator&loading=async';
+    document.head.appendChild(script);
+  });
+}
+
+window.initStoreLocator=initStoreLocator;
+window.gm_authFailure=function(){handleMapError('auth');};
+bindStoreList();
+loadGoogleMaps();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Local environment secrets
+.env
+.env.*
+!*.env.example
+!**/.env.example
+config.local.js
+**/config.local.js
+
+# Claude Code local config
+.claude/
+.claude*
+
+# Playwright MCP working artifacts
+.playwright-mcp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+
+# Local invoice preparation
+invoice-worklog-draft.md
+.cursor/rules/invoice-worklog.mdc
