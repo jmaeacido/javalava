@@ -16,12 +16,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.javalava.rocks/our-story</loc>
+    <loc>https://www.javalava.rocks/story</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.javalava.rocks/store-location</loc>
+    <loc>https://www.javalava.rocks/locator</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

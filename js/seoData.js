@@ -1,7 +1,7 @@
 /**
  * Temporary mini SEO database — paste approved Google Sheet values here.
  * Apply into static HTML via `npm run seo:apply` (see scripts/apply-seo.js).
- * Paths follow the live Wix routes on www.javalava.rocks.
+ * Paths follow the live site routes on www.javalava.rocks.
  */
 'use strict';
 
@@ -54,14 +54,14 @@ const seoData = {
     title: 'Our Story — Java Lava',
     description:
       'Born from volcanic soil. The story behind Java Lava — ethically sourced Arabica, Caribbean rum and blue agave.',
-    path: '/our-story',
+    path: '/story',
     file: 'story.html',
     focusKeyword: 'Java Lava story',
   },
   locator: {
     title: 'Store Locations — Java Lava',
     description: 'Find Java Lava Coffee Liqueur at a stockist near you, or order online.',
-    path: '/store-location',
+    path: '/locator',
     file: 'locator.html',
     focusKeyword: 'Java Lava store locator',
   },
@@ -76,7 +76,7 @@ const seoData = {
     title: 'Page Not Found — Java Lava',
     description:
       'This Java Lava page could not be found. Return home to explore the coffee liqueur, shop, merch, and store locations.',
-    path: '/error404',
+    path: '/404',
     file: '404.html',
     noIndex: true,
   },

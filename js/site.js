@@ -64,64 +64,6 @@ setTimeout(function(){
   });
 })();
 
-/* keep every public route on the canonical domain and escape the Wix iframe */
-(function(){
-  var isLocal = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
-  if(isLocal) return;
-
-  var canonicalOrigin = 'https://www.javalava.rocks';
-  function isAdminPath(path){
-    return /^\/(admin|email-admin|merch-admin)(\.html)?$/i.test(path);
-  }
-  function isVercelPreviewPath(path){
-    /* Keep direct Vercel previews until matching Wix pages exist */
-    return isAdminPath(path) || /^\/(404|error404)(\.html)?$/i.test(path);
-  }
-  function canonicalPath(pathname){
-    var path = pathname.replace(/^\/concept-a(?=\/|$)/,'') || '/';
-    if(path === '/index.html') return '/';
-    if(path === '/story' || path === '/story.html') return '/our-story';
-    if(path === '/locator' || path === '/locator.html') return '/store-location';
-    /* Wix custom 404 must use the reserved slug /error404 */
-    if(path === '/404' || path === '/404.html' || path === '/error404' || path === '/error404.html') return '/error404';
-    /* admin routes keep the same slug on Wix (/admin, /email-admin, /merch-admin) */
-    if(isAdminPath(path)) return path.replace(/\.html$/,'');
-    return path.replace(/\.html$/,'');
-  }
-  function canonicalUrl(url){
-    return canonicalOrigin + canonicalPath(url.pathname) + url.search + url.hash;
-  }
-  function canonicalizeLink(link){
-    var rawHref = link.getAttribute('href');
-    if(!rawHref || rawHref.charAt(0) === '#' || /^(mailto:|tel:|javascript:)/i.test(rawHref)) return;
-
-    var url;
-    try { url = new URL(rawHref,location.href); } catch(error) { return; }
-    if(url.origin !== location.origin && url.origin !== canonicalOrigin) return;
-
-    link.href = canonicalUrl(url);
-    link.target = '_top';
-  }
-  function canonicalizeLinks(root){
-    if(root.matches && root.matches('a[href]')) canonicalizeLink(root);
-    if(root.querySelectorAll) root.querySelectorAll('a[href]').forEach(canonicalizeLink);
-  }
-
-  if(/\.vercel\.app$/i.test(location.hostname) && window.top === window.self){
-    var path = canonicalPath(new URL(location.href).pathname);
-    /* Wait until matching Wix iframe pages exist before forcing admin onto javalava.rocks */
-    if(!isVercelPreviewPath(path)) location.replace(canonicalUrl(new URL(location.href)));
-    return;
-  }
-
-  canonicalizeLinks(document);
-  new MutationObserver(function(records){
-    records.forEach(function(record){
-      record.addedNodes.forEach(canonicalizeLinks);
-    });
-  }).observe(document.documentElement,{childList:true,subtree:true});
-})();
-
 /* nav background on scroll (interior pages can force .solid in markup) */
 (function(){
   var nav=document.querySelector('nav.site'); if(!nav) return;
@@ -133,8 +75,7 @@ setTimeout(function(){
 if(window.gsap){
   gsap.registerPlugin(ScrollTrigger);
 
-  /* native/instant scroll — smooth-scroll (Lenis) disabled for the snappiest feel,
-     especially inside the Wix iframe. ScrollTrigger reveals/parallax still work on native scroll. */
+  /* native/instant scroll — smooth-scroll (Lenis) disabled for the snappiest feel */
   gsap.ticker.lagSmoothing(0);
 
   /* loader (only if present) */
