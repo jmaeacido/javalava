@@ -162,3 +162,79 @@ if(window.gsap){
   script.src = '/_vercel/insights/script.js';
   document.head.appendChild(script);
 })();
+
+/* AccelPay — site-wide checkout (matches legacy Wix embed). Skip admin routes. */
+(function(){
+  if(/^\/(admin|email-admin|merch-admin|blog-admin)(\.html)?$/i.test(location.pathname)) return;
+
+  window.apbrand = window.apbrand || { id: 4041823 };
+  if(document.querySelector('script[data-jl-accelpay]')) return;
+
+  var readyWaiters = [];
+  var accelpayReady = false;
+
+  function markAccelPayReady(){
+    if(accelpayReady) return;
+    if(!window.apbrand || !apbrand.accelpay || !apbrand.accelpay.dom) return;
+    accelpayReady = true;
+    readyWaiters.splice(0).forEach(function(cb){ try{ cb(apbrand.accelpay); }catch(err){} });
+  }
+
+  function pollAccelPayReady(){
+    markAccelPayReady();
+    if(!accelpayReady) window.setTimeout(pollAccelPayReady, 200);
+  }
+
+  function whenAccelPayReady(timeoutMs){
+    timeoutMs = timeoutMs || 15000;
+    return new Promise(function(resolve, reject){
+      if(accelpayReady) return resolve(apbrand.accelpay);
+      var timer = window.setTimeout(function(){
+        reject(new Error('AccelPay did not load in time'));
+      }, timeoutMs);
+      readyWaiters.push(function(ap){
+        window.clearTimeout(timer);
+        resolve(ap);
+      });
+      pollAccelPayReady();
+    });
+  }
+
+  window.JavaLavaAccelPay = {
+    brandId: 4041823,
+    whenReady: whenAccelPayReady,
+    addToCart: function(opts){
+      opts = opts || {};
+      var listingId = String(opts.listingId || '');
+      var variantId = String(opts.variantId || '');
+      var qty = Math.max(1, opts.qty || 1);
+      if(!listingId || !variantId) return Promise.reject(new Error('AccelPay product mapping missing.'));
+
+      return whenAccelPayReady().then(function(){
+        var slot = document.querySelector('[data-bclistingid="' + listingId + '"][data-bcvariantid="' + variantId + '"]');
+        var btn = slot && slot.querySelector('button');
+        if(!btn) throw new Error('AccelPay add-to-cart control not found');
+        for(var i = 0; i < qty; i++) btn.click();
+      });
+    },
+    openCart: function(){
+      return whenAccelPayReady().then(function(ap){
+        ap.dom.openCart();
+      });
+    }
+  };
+
+  window.addEventListener('message', function(event){
+    var data = event.data;
+    if(!data || typeof data !== 'object' || !data.action || data.action !== 'bc-add-item') return;
+    document.dispatchEvent(new CustomEvent('javalava:cart-add', { detail: data.value }));
+  });
+
+  var script = document.createElement('script');
+  script.async = true;
+  script.src = 'https://cart.accelpay.io/scripts/brand.js';
+  script.setAttribute('data-jl-accelpay', '1');
+  script.addEventListener('load', pollAccelPayReady);
+  document.body.appendChild(script);
+  pollAccelPayReady();
+})();
