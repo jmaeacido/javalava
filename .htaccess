@@ -1,5 +1,6 @@
 Options -MultiViews
 RedirectMatch 301 ^/java-lava/site/concept-a/?(.*)$ /java-lava/$1
+RedirectMatch 301 ^/java-lava/concept-a/?(.*)$ /java-lava/$1
 RewriteEngine On
 
 # Concept A is now the primary site at /java-lava/.
@@ -20,3 +21,19 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^(.+?)/?$ $1.html [L]
+
+# ── Node API backend (requires mod_proxy + mod_proxy_http) ───────────────
+# Start the API with: npm run dev:api
+# Adjust the port if PORT in .env differs from 3000.
+<IfModule mod_proxy.c>
+  ProxyPreserveHost On
+
+  ProxyPass        /java-lava/api/ http://127.0.0.1:3000/api/
+  ProxyPassReverse /java-lava/api/ http://127.0.0.1:3000/api/
+
+  ProxyPass        /java-lava/rss.xml http://127.0.0.1:3000/rss.xml
+  ProxyPassReverse /java-lava/rss.xml http://127.0.0.1:3000/rss.xml
+
+  ProxyPass        /java-lava/sitemap-blog.xml http://127.0.0.1:3000/sitemap-blog.xml
+  ProxyPassReverse /java-lava/sitemap-blog.xml http://127.0.0.1:3000/sitemap-blog.xml
+</IfModule>

@@ -1,19 +1,23 @@
 {
   "name": "java-lava",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Java Lava marketing site and API backend",
+  "main": "server/index.js",
   "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "dev:api": "node --watch server/dev-api.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "smoke:api": "node scripts/smoke-api.js",
-    "seo:apply": "node scripts/apply-seo.js",
-    "dev:api": "vercel dev"
+    "seo:apply": "node scripts/apply-seo.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "nodemailer": "^9.0.1"
   }
 }

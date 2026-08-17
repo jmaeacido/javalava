@@ -55,7 +55,7 @@ setTimeout(function(){
   drawer.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){toggle(false);});});
 })();
 
-/* keep Vercel absolute home links, but make local/Laragon previews folder-relative */
+/* keep absolute home links folder-relative on local previews */
 (function(){
   var isLocal = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
   if(!isLocal) return;
@@ -149,18 +149,6 @@ if(window.gsap){
       if(button){ button.disabled=false; button.textContent='Sign Up'; }
     }
   });
-})();
-
-/* Vercel Web Analytics (static HTML — no npm). Skip local dev and admin routes. */
-(function(){
-  var isLocal = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
-  if(isLocal) return;
-  if(/^\/(admin|email-admin|merch-admin)(\.html)?$/i.test(location.pathname)) return;
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-  var script = document.createElement('script');
-  script.defer = true;
-  script.src = '/_vercel/insights/script.js';
-  document.head.appendChild(script);
 })();
 
 /* AccelPay — site-wide checkout (matches legacy Wix embed). Skip admin routes. */

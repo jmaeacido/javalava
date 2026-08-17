@@ -11,12 +11,12 @@
 <meta property="og:site_name" content="Java Lava" />
 <meta property="og:title" content="Blog — Java Lava" />
 <meta property="og:description" content="Java Lava blog post." />
-<meta property="og:image" content="https://java-lava-eta.vercel.app/assets/og.jpg" />
+<meta property="og:image" content="https://www.javalava.rocks/assets/og.jpg" />
 <meta property="og:url" content="https://www.javalava.rocks/blog" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Blog — Java Lava" />
 <meta name="twitter:description" content="Java Lava blog post." />
-<meta name="twitter:image" content="https://java-lava-eta.vercel.app/assets/og.jpg" />
+<meta name="twitter:image" content="https://www.javalava.rocks/assets/og.jpg" />
 <link rel="icon" href="assets/product-6cafc4.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -202,7 +202,7 @@
     const title = (post.meta_title || post.title) + ' — Java Lava';
     const desc  = post.meta_description || post.excerpt || 'Java Lava blog.';
     const url   = `https://www.javalava.rocks/blog/${post.slug}`;
-    const img   = post.featured_image || 'https://java-lava-eta.vercel.app/assets/og.jpg';
+    const img   = post.featured_image || 'https://www.javalava.rocks/assets/og.jpg';
 
     document.title = title;
     document.querySelector('meta[name="description"]').content = desc;
@@ -228,7 +228,7 @@
       publisher: {
         '@type': 'Organization',
         name: 'Java Lava',
-        logo: { '@type': 'ImageObject', url: 'https://java-lava-eta.vercel.app/assets/product-6cafc4.png' }
+        logo: { '@type': 'ImageObject', url: 'https://www.javalava.rocks/assets/product-6cafc4.png' }
       },
       image: img,
       mainEntityOfPage: { '@type': 'WebPage', '@id': url }

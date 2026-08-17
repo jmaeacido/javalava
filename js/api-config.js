@@ -52,7 +52,7 @@
       }
       var url = urls[index++];
       var opts = options || {};
-      // Don't hang for tens of seconds when local `vercel dev` isn't running.
+      // Short timeout when falling back to a separate local API port.
       if (/:3000(\/|$)/.test(url) && !opts.signal && typeof AbortSignal !== 'undefined' && AbortSignal.timeout) {
         opts = Object.assign({}, opts, { signal: AbortSignal.timeout(1500) });
       }

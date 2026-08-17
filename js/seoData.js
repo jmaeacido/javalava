@@ -7,7 +7,7 @@
 
 const SITE_URL = 'https://www.javalava.rocks';
 const BRAND_NAME = 'Java Lava';
-const DEFAULT_OG_IMAGE = 'https://java-lava-eta.vercel.app/assets/og.jpg';
+const DEFAULT_OG_IMAGE = 'https://www.javalava.rocks/assets/og.jpg';
 
 /** @typedef {{
  *   title: string,

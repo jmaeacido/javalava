@@ -2,8 +2,7 @@ const nodemailer = require('nodemailer');
 
 function publicSiteUrl() {
   const explicit = process.env.SITE_URL || process.env.PUBLIC_SITE_URL;
-  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
-  const value = explicit || vercel || 'https://java-lava-eta.vercel.app/';
+  const value = explicit || 'https://www.javalava.rocks';
   return /^https?:\/\//i.test(value) ? value.replace(/\/$/, '') : `https://${value.replace(/\/$/, '')}`;
 }
 
