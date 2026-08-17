@@ -1,9 +1,0 @@
-{
-  "name": "java-lava-deploy",
-  "version": "1.0.0",
-  "private": true,
-  "type": "commonjs",
-  "dependencies": {
-    "nodemailer": "^9.0.1"
-  }
-}

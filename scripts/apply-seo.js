@@ -1,5 +1,5 @@
 /**
- * Inject seoData head tags into mirrored HTML pages + write sitemap/robots.
+ * Inject seoData head tags into HTML pages + write sitemap/robots.
  * Usage: node scripts/apply-seo.js
  */
 'use strict';
@@ -14,14 +14,6 @@ const {
 } = require('../js/seo');
 
 const ROOT = path.join(__dirname, '..');
-
-const MIRROR_DIRS = [
-  ROOT,
-  path.join(ROOT, 'site'),
-  path.join(ROOT, 'site', 'concept-a'),
-  path.join(ROOT, '_deploy', 'java-lava'),
-  path.join(ROOT, '_deploy', 'java-lava', 'concept-a'),
-];
 
 const SEO_BLOCK_RE =
   /<title\b[^>]*>[\s\S]*?<\/title>\s*(?:<(?:meta|link)\b[^>]*?(?:name=["'](?:description|keywords|robots|twitter:[^"']+)["']|property=["']og:[^"']+["']|rel=["']canonical["'])[^>]*\/?>\s*)*/i;
@@ -75,12 +67,9 @@ ${urls}
 </urlset>
 `;
 
-  for (const dir of [ROOT, path.join(ROOT, 'site'), path.join(ROOT, '_deploy', 'java-lava')]) {
-    if (!fs.existsSync(dir)) continue;
-    const out = path.join(dir, 'sitemap.xml');
-    fs.writeFileSync(out, xml, 'utf8');
-    console.log(`wrote: ${path.relative(ROOT, out)}`);
-  }
+  const out = path.join(ROOT, 'sitemap.xml');
+  fs.writeFileSync(out, xml, 'utf8');
+  console.log(`wrote: ${path.relative(ROOT, out)}`);
 }
 
 function writeRobots() {
@@ -94,20 +83,15 @@ Disallow: /merch-admin
 Sitemap: ${SITE_URL}/sitemap.xml
 `;
 
-  for (const dir of [ROOT, path.join(ROOT, 'site'), path.join(ROOT, '_deploy', 'java-lava')]) {
-    if (!fs.existsSync(dir)) continue;
-    const out = path.join(dir, 'robots.txt');
-    fs.writeFileSync(out, body, 'utf8');
-    console.log(`wrote: ${path.relative(ROOT, out)}`);
-  }
+  const out = path.join(ROOT, 'robots.txt');
+  fs.writeFileSync(out, body, 'utf8');
+  console.log(`wrote: ${path.relative(ROOT, out)}`);
 }
 
 let updated = 0;
 for (const entry of Object.values(seoData)) {
-  for (const dir of MIRROR_DIRS) {
-    const filePath = path.join(dir, entry.file);
-    if (patchHtml(filePath, entry)) updated += 1;
-  }
+  const filePath = path.join(ROOT, entry.file);
+  if (patchHtml(filePath, entry)) updated += 1;
 }
 
 writeSitemap();

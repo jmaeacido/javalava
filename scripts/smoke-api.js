@@ -101,7 +101,7 @@ Environment:
 Notes:
   - Creates real Supabase rows tagged source=api-smoke-test.
   - May send emails when SMTP is configured (502 still means the row saved).
-  - Run against local Vercel dev: npx vercel dev (from _deploy/java-lava)
+  - Run against local Vercel dev: npm run dev:api (from project root)
 `);
 }
 

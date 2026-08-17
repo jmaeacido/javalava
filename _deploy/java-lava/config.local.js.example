@@ -1,7 +1,0 @@
-// Copy to config.local.js for Laragon/local static hosting (gitignored).
-// Used by email admin, admin, locator, and Instagram when APIs are not on Apache.
-window.JavaLavaConfig = Object.assign({}, window.JavaLavaConfig, {
-  // Vercel dev default when static HTML is served from Laragon:
-  apiBase: 'http://localhost:3000',
-  googleMapsApiKey: 'your-google-maps-browser-key'
-});
